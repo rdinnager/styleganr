@@ -19,7 +19,7 @@ modulated_conv2d <- function(
   s,                  # Style tensor: [batch_size, in_channels]
   demodulate  = TRUE, # Apply weight demodulation?
   padding     = 0,    # Padding: int or [padH, padW]
-  input_gain  = NULL, # Optional scale factors for the input channels: [], [in_channels], or [batch_size, in_channels]
+  input_gain  = NULL # Optional scale factors for the input channels: [], [in_channels], or [batch_size, in_channels]
 ) {
 
   batch_size <- x$shape[1]
@@ -51,10 +51,17 @@ modulated_conv2d <- function(
   }
 
   # Execute as one fused op using grouped convolution.
-  x <- x$reshape(c(2, -1, x$shape[3:4])) ## *x$shape[2:] * means to 'unpack'
+  x <- x$reshape(c(1, -1, x$shape[3:4])) ## *x$shape[2:] * means to 'unpack'
   w <- w$reshape(c(-1, in_channels, kh, kw))
-  x <- conv2d_gradfix(input=x, weight=w.to(x.dtype), padding=padding, groups=batch_size)
+  x <- conv2d_gradfix(input = x, weight = w$to(x$dtype), padding = padding, groups = batch_size)
   x = x$reshape(c(batch_size, -1, x$shape[3:4]))
   return(x)
 }
 
+x <- test_tensor(100, 3, 128, 128)$cuda()
+w <- test_tensor(4, 3, 5, 5)$cuda()
+s <- test_tensor(100, 3)$cuda()
+
+Sys.setenv(STYLEGAN_GRADFIX_ENABLED = 1)
+
+test <- modulated_conv2d(x, w, s)

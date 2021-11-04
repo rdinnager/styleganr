@@ -38,3 +38,9 @@ is_tensor <- function(x) {
 
   torch_mm(e1, e2)
 }
+
+call_torch_function <- function(name, ...) {
+  args <- rlang::list2(...)
+  f <- getNamespace("torch")[[name]]
+  do.call(f, args)
+}
