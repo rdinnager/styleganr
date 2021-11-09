@@ -1,16 +1,16 @@
 conv2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding=0, dilation=1, groups=1) {
   if(.should_use_custom_op(input)) {
-  return(.conv2d_gradfix(transpose=False, weight_shape=weight.shape, stride=stride, padding=padding, output_padding=0, dilation=dilation, groups=groups)(input, weight, bias))
+  return(.conv2d_gradfix(transpose = FALSE, weight_shape = weight$shape, stride = stride, padding = padding, output_padding = 0, dilation = dilation, groups = groups)(input, weight, bias))
   }
-  return(nnf_conv2d(input=input, weight=weight, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups))
+  return(nnf_conv2d(input = input, weight = weight, bias = bias, stride = stride, padding = padding, dilation = dilation, groups = groups))
 }
 
-conv_transpose2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding=0, output_padding=0, groups=1, dilation=1) {
+conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, padding = 0, output_padding = 0, groups = 1, dilation = 1) {
   if(.should_use_custom_op(input)) {
-    return(.conv2d_gradfix(transpose=TRUE, weight_shape=weight.shape, stride=stride, padding=padding, output_padding=output_padding, groups=groups, dilation=dilation)(input, weight, bias))
+    return(.conv2d_gradfix(transpose = TRUE, weight_shape = weight$shape, stride = stride, padding = padding, output_padding = output_padding, groups = groups, dilation = dilation)(input, weight, bias))
   }
 
-  return(nnf_conv_transpose2d(input=input, weight=weight, bias=bias, stride=stride, padding=padding, output_padding=output_padding, groups=groups, dilation=dilation))
+  return(nnf_conv_transpose2d(input = input, weight = weight, bias = bias, stride = stride, padding = padding, output_padding = output_padding, groups = groups, dilation = dilation))
 }
 #----------------------------------------------------------------------------
 
@@ -29,7 +29,10 @@ conv_transpose2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding
 }
 
 .tuple_of_ints <- function(xs, ndim) {
-  xs <- rep(xs, ndim)
+  if(length(xs) == ndim) {
+    return(xs)
+  }
+  xs <- rep(as.integer(xs), ndim)
   assertthat::are_equal(length(xs), ndim)
   assertthat::assert_that(all(purrr::map_lgl(xs, ~is.integer(.x))))
   return(xs)
@@ -85,19 +88,21 @@ conv_transpose2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding
   Conv2d <- autograd_function(
 
     forward = function(ctx, input, weight, bias) {
+      print("conv2d forward..")
       assertthat::are_equal(weight$shape, weight_shape)
       ctx$save_for_backward(
         if(weight$requires_grad) input else .null_tensor,
-        if(input$requires_grad) weight else .null_tensor
+        if(input$requires_grad) weight else .null_tensor,
+        input_shape = input$shape
       )
-      ctx$save_for_backward(input_shape = input$shape)
+      #ctx$save_for_backward()
 
       # Simple 1x1 convolution => cuBLAS (only on Volta, not on Ampere).
       if(all(weight_shape[3:length(weight_shape)] == c(1, 1)) &
          all(stride == c(1, 1)) &
          all(dilation == c(1, 1)) &
          all(padding == c(0, 0)) &
-         Sys.getenv(CUDA_CAPABILITY_MAJOR) < 8) {
+         Sys.getenv("CUDA_CAPABILITY_MAJOR") < 8) {
         a <- weight$reshape(c(groups, weight_shape[1] %/% groups, weight_shape[2]))
         b <- input$reshape(c(input$shape[1], groups, input$shape[2] %/% groups, -1))
         if(transpose) {
@@ -129,31 +134,33 @@ conv_transpose2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding
     },
 
     backward = function(ctx, grad_output) {
-
+      
+      print("conv2d backward..")
+      
       c(input, weight, input_shape) %<-% ctx$saved_variables
 
-      grad_input <- NULL
-      grad_weight <- NULL
-      grad_bias <- NULL
+      grad_input <- .null_tensor
+      grad_weight <- .null_tensor
+      grad_bias <- .null_tensor
 
-      if(ctx$needs_input_grad[1]) {
+      if(ctx$needs_input_grad[[1]]) {
         p <- calc_output_padding(input_shape = input_shape, output_shape = grad_output$shape)
         op <- rlang::exec(.conv2d_gradfix, transpose = (!transpose), weight_shape = weight_shape,
                               output_padding = p, !!!common_kwargs)
-        grad_input = op.apply(grad_output, weight, None)
+        grad_input = op(grad_output, weight, NULL)
         assertthat::are_equal(grad_input$shape, input_shape)
       }
 
-      if(ctx$needs_input_grad[2] & !Sys.getenv(STYLEGAN_WEIGHT_GRADIENTS_DISABLED)) {
-        grad_weight <- Conv2dGradWeight()(grad_output, input)
+      if(ctx$needs_input_grad[[2]] & !(Sys.getenv("STYLEGAN_WEIGHT_GRADIENTS_DISABLED") == 1)) {
+        grad_weight <- Conv2dGradWeight(grad_output, input)
         assertthat::are_equal(grad_weight$shape, weight_shape)
       }
-
-      if(ctx$needs_input_grad[3]) {
+      
+      if(ctx$needs_input_grad[[3]]) {
         grad_bias <- grad_output$sum(c(1, 3, 4))
       }
-
-      return(list(grad_input, grad_weight, grad_bias))
+      
+      return(list(input = grad_input, weight = grad_weight, bias = grad_bias))
     }
   )
 
@@ -161,13 +168,16 @@ conv_transpose2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding
   Conv2dGradWeight <- autograd_function(
 
     forward = function(ctx, grad_output, input) {
+      print("conv2d_gradweight forward..")
       ctx$save_for_backward(
         if(input$requires_grad) grad_output else .null_tensor,
-        if(grad_output$requires_grad) input else .null_tensor
+        if(grad_output$requires_grad) input else .null_tensor,
+        grad_output_shape = grad_output$shape, 
+        input_shape = input$shape
       )
 
-      ctx$save_for_backward(grad_output_shape = grad_output$shape, input_shape = input$shape)
-
+      #ctx$save_for_backward(grad_output_shape = grad_output$shape, input_shape = input$shape)
+      
       # Simple 1x1 convolution => cuBLAS (on both Volta and Ampere).
       if(all(weight_shape[3:length(weight_shape)] == c(1, 1)) &
          all(stride == c(1, 1)) &
@@ -198,32 +208,35 @@ conv_transpose2d_gradfix <- function(input, weight, bias=NULL, stride=1, padding
         name <- 'torch_cudnn_convolution_backward_weight'
       }
       flags <- list(benchmark = FALSE, deterministic = FALSE, allow_tf32 = TRUE)
-      return(call_torch_function(name, weight_shape = weight_shape,
-                                 grad_output = grad_output, input = input,
+      return(call_torch_function(name, weight_size = weight_shape,
+                                 grad_output = grad_output, self = input,
                                  padding = padding, stride = stride,
                                  dilation = dilation, groups = groups,
                                  !!!flags))
     },
 
     backward = function(ctx, grad2_grad_weight) {
+      
+      print("conv2d_gradweight backward..")
+      
       c(grad_output, input, grad_output_shape, input_shape) %<-% ctx$saved_variables
 
-      grad2_grad_output <- NULL
-      grad2_input = NULL
+      grad2_grad_output <- .null_tensor
+      grad2_input = .null_tensor
 
-      if(ctx$needs_input_grad[1]) {
+      if(ctx$needs_input_grad[[1]]) {
         grad2_grad_output <- Conv2d()(input, grad2_grad_weight, NULL)
         assertthat::are_equal(grad2_grad_output$shape, grad_output_shape)
       }
 
-      if(ctx$needs_input_grad[2]) {
+      if(ctx$needs_input_grad[[2]]) {
         p <- calc_output_padding(input_shape = input_shape, output_shape = grad_output_shape)
         op = rlang::exec(.conv2d_gradfix, transpose = (!transpose), weight_shape = weight_shape, output_padding = p, !!!common_kwargs)
         grad2_input <- op(grad_output, grad2_grad_weight, NULL)
         assertthat::are_equal(grad2_input.shape, input_shape)
       }
 
-      return(list(grad2_grad_output, grad2_input))
+      return(list(grad_output = grad2_grad_output, input = grad2_input))
     }
   )
 
