@@ -6,10 +6,14 @@
 // distribution of this software and related documentation without an express
 // license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-#include <torch/extension.h>
+#define LANTERN_BUILD
+#include "lantern/lantern.h"
+//#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
 #include "filtered_lrelu.h"
+#include <torch/torch.h>
+#include "../../utils.hpp"
 
 //------------------------------------------------------------------------
 
@@ -287,14 +291,6 @@ static torch::Tensor filtered_lrelu_act(torch::Tensor x, torch::Tensor si, int s
     // Launch.
     AT_CUDA_CHECK(cudaLaunchKernel(func, dim3(gx, gy, gz), bx, args, 0, at::cuda::getCurrentCUDAStream()));
     return so;
-}
-
-//------------------------------------------------------------------------
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m)
-{
-    m.def("filtered_lrelu",      &filtered_lrelu);      // The whole thing.
-    m.def("filtered_lrelu_act_", &filtered_lrelu_act);  // Activation and sign tensor handling only. Modifies data tensor in-place.
 }
 
 //------------------------------------------------------------------------

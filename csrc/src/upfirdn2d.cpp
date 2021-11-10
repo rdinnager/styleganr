@@ -6,10 +6,14 @@
 // distribution of this software and related documentation without an express
 // license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-#include <torch/extension.h>
+#define LANTERN_BUILD
+#include "lantern/lantern.h"
+//#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
 #include "upfirdn2d.h"
+#include <torch/torch.h>
+#include "../../utils.hpp"
 
 //------------------------------------------------------------------------
 
@@ -95,13 +99,6 @@ static torch::Tensor upfirdn2d(torch::Tensor x, torch::Tensor f, int upx, int up
     void* args[] = {&p};
     AT_CUDA_CHECK(cudaLaunchKernel(spec.kernel, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream()));
     return y;
-}
-
-//------------------------------------------------------------------------
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m)
-{
-    m.def("upfirdn2d", &upfirdn2d);
 }
 
 //------------------------------------------------------------------------
