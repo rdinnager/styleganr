@@ -1,0 +1,4 @@
+LIBRARY LLTM
+EXPORTS
+  c_lltm_forward
+  c_lltm_backward
