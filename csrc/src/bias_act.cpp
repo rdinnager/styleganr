@@ -11,30 +11,10 @@
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
+#include "lantern_ob.h"
 #include "bias_act.h"
 #include <torch/torch.h>
 //#include "../../utils.hpp"
-
-template <class T>
-class LanternObject
-{
-private:
-    T _object;
-    
-public:
-    LanternObject(T object) : _object(std::forward<T>(object))
-    {
-    }
-    
-    LanternObject()
-    {
-    }
-    
-    T &get()
-    {
-        return _object;
-    }
-};
 
 //------------------------------------------------------------------------
 

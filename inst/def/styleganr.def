@@ -1,3 +1,5 @@
 LIBRARY STYLEGANR
 EXPORTS
   _styleganr_bias_act
+  _styleganr_upfirdn2d
+  _styleganr_filtered_lrelu_act

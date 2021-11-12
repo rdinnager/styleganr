@@ -6,14 +6,15 @@
 // distribution of this software and related documentation without an express
 // license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-#define LANTERN_BUILD
-#include "lantern/lantern.h"
+//#define LANTERN_BUILD
+//#include "lantern/lantern.h"
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
+#include "lantern_ob.h"
 #include "upfirdn2d.h"
 #include <torch/torch.h>
-#include "../../utils.hpp"
+//#include "../../utils.hpp"
 
 //------------------------------------------------------------------------
 
@@ -102,3 +103,24 @@ static torch::Tensor upfirdn2d(torch::Tensor x, torch::Tensor f, int upx, int up
 }
 
 //------------------------------------------------------------------------
+
+void * _styleganr_upfirdn2d (void* x, void* f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
+{
+    //LANTERN_FUNCTION_START
+    torch::Tensor result = upfirdn2d(
+        reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
+        reinterpret_cast<LanternObject<torch::Tensor>*>(f)->get(), 
+        upx, 
+        upy, 
+        downx, 
+        downy, 
+        padx0, 
+        padx1, 
+        pady0, 
+        pady1, 
+        flip, 
+        gain
+    );
+    return (void*) new LanternObject<torch::Tensor>(result);
+    //LANTERN_FUNCTION_END
+}

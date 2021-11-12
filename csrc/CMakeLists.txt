@@ -17,13 +17,53 @@ message(STATUS "${TORCH_HOME}")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
+if(APPLE)
+    if(DEFINED ENV{CUDA})
+        message(FATAL_ERROR, "CUDA not supported on macos")
+    endif()
+elseif(WIN32)
+    if(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '10.1')
+        message(FATAL_ERROR, "CUDA 10.1 is no longer supported")
+    elseif(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '10.2')
+        add_compile_definitions(CUDA102)
+    elseif(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '11.1')
+        add_compile_definitions(CUDA111)
+    endif()
+elseif(UNIX)
+    if(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '9.2')
+        message(FATAL_ERROR, "CUDA 9.2 is no longer supported")
+    elseif(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '10.1')
+        message(FATAL_ERROR, "CUDA 10.1 is no longer supported")
+    elseif(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '10.2')
+        add_compile_definitions(CUDA102)
+    elseif(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '11.0')
+        message(FATAL_ERROR, "CUDA 11.0 is no longer supported")
+    elseif(DEFINED ENV{CUDA} AND '$ENV{CUDA}' STREQUAL '11.1')
+        add_compile_definitions(CUDA111)
+    endif()
+else()
+    message(FATAL_ERROR, "OS not supported.")
+endif()
+
 # Here we tell CMake what are the source files of our package.
 # If you want to separate your implementation in multiple files
 # add their paths after `src/lltm.cpp`, the spearator is a simple
 # space.
-set(STYLEGANR_SRC src/bias_act_cpu.cpp
-                  src/bias_act.cpp
-                  src/bias_act.cu)
+if(DEFINED ENV{CUDA})
+  set(STYLEGANR_SRC src/bias_act.cpp
+                    src/bias_act.cu
+                    src/upfirdn2d.cpp
+                    src/upfirdn2d.cu
+                    src/filtered_lrelu.cpp
+                    src/filtered_lrelu.cu
+                    src/filtered_lrelu_ns.cu
+                    src/filtered_lrelu_rd.cu
+                    src/filtered_lrelu_wr.cu)
+else()
+  set(STYLEGANR_SRC src/bias_act_cpu.cpp
+                    src/upfirdn2d_cpu.cpp
+                    src/filtered_lrelu_cpu.cpp)
+endif()
 
 # On Windows we use module definition files to declare what are
 # the exported functions from the library. It's similar to the
@@ -35,7 +75,11 @@ if(WIN32)
 endif()
 
 # Tell cmake to build the shared library.
-cuda_add_library(styleganr SHARED ${STYLEGANR_SRC})
+if(DEFINED ENV{CUDA})
+  cuda_add_library(styleganr SHARED ${STYLEGANR_SRC})
+else()
+  add_library(styleganr SHARED ${STYLEGANR_SRC})
+endif()
 add_library(styleganr::library ALIAS styleganr)
 
 # Tell cmake what are the include files.
@@ -57,7 +101,7 @@ add_custom_command(TARGET styleganr POST_BUILD
 
 add_custom_command(TARGET styleganr POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/styleganr.h ${PROJECT_SOURCE_DIR}/../src/styleganr/styleganr.h
-    COMMENT "Copied lltm.h file to src folder."
+    COMMENT "Copied styleganr.h file to src folder."
 )
 
 # Set CPack related code to automatically generate installation bundles.
@@ -71,8 +115,8 @@ execute_process (
     OUTPUT_VARIABLE CPACK_PACKAGE_VERSION
 )
 
-if(DEFINED ${CUDA_VERSION_STRING})
-  set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}+cu${CUDA_VERSION_STRING})
+if(DEFINED ENV{CUDA})
+  set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}+cu$ENV{CUDA})
 else()
   set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}+cpu)
 endif()

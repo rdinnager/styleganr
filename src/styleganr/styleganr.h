@@ -1,18 +1,17 @@
 #ifdef _WIN32
-#ifndef LLTM_HEADERS_ONLY
-#define LLTM_API extern "C" __declspec(dllexport)
+#ifndef STYLGANR_HEADERS_ONLY
+#define STYLEGANR_API extern "C" __declspec(dllexport)
 #else
-#define LLTM_API extern "C" __declspec(dllimport)
+#define STYLEGANR_API extern "C" __declspec(dllimport)
 #endif
 #else
-#define LLTM_API extern "C"
+#define STYLEGANR_API extern "C"
 #endif
 
-LLTM_API void* c_lltm_forward (void* input, void* weights, void* bias, void* old_h,
-                               void* old_cell);
-LLTM_API void* c_lltm_backward(void* grad_h, void* grad_cell, void* new_cell,
-                               void* input_gate, void* output_gate, void* candidate_cell,
-                               void* X, void* gate_weights, void* weights);
+STYLEGANR_API void* _styleganr_bias_act (void* x, void* b, void* xref, void* yref, void* dy, int grad, int dim, int act, float alpha, float gain, float clamp);
+STYLEGANR_API void* _styleganr_upfirdn2d (void* x, void* f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain);
+STYLEGANR_API void* _styleganr_filtered_lrelu_act (void* x, void* si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns);
+
 
 
 

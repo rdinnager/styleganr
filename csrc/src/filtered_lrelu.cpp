@@ -6,14 +6,15 @@
 // distribution of this software and related documentation without an express
 // license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-#define LANTERN_BUILD
-#include "lantern/lantern.h"
+//#define LANTERN_BUILD
+//#include "lantern/lantern.h"
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
+#include "lantern_ob.h"
 #include "filtered_lrelu.h"
 #include <torch/torch.h>
-#include "../../utils.hpp"
+//#include "../../utils.hpp"
 
 //------------------------------------------------------------------------
 
@@ -294,3 +295,20 @@ static torch::Tensor filtered_lrelu_act(torch::Tensor x, torch::Tensor si, int s
 }
 
 //------------------------------------------------------------------------
+
+void * _styleganr_filtered_lrelu_act (void* x, void* si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns)
+{
+    //LANTERN_FUNCTION_START
+    torch::Tensor result = filtered_lrelu_act(
+        reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
+        reinterpret_cast<LanternObject<torch::Tensor>*>(si)->get(), 
+        sx, 
+        sy, 
+        gain, 
+        slope, 
+        clamp, 
+        writeSigns
+    );
+    return (void*) new LanternObject<torch::Tensor>(result);
+    //LANTERN_FUNCTION_END
+}

@@ -28,7 +28,7 @@ NULL
 }
 
 inst_path <- function() {
-  install_path <- Sys.getenv("LLTM_HOME")
+  install_path <- Sys.getenv("STYLEGANR_HOME")
   if (nzchar(install_path)) return(install_path)
 
   system.file("", package = "lltm")
@@ -38,9 +38,9 @@ lib_path <- function() {
   install_path <- inst_path()
 
   if (.Platform$OS.type == "unix") {
-    file.path(install_path, "lib", paste0("liblltm", lib_ext()))
+    file.path(install_path, "lib", paste0("libstyleganr", lib_ext()))
   } else {
-    file.path(install_path, "lib", paste0("lltm", lib_ext()))
+    file.path(install_path, "lib", paste0("styleganr", lib_ext()))
   }
 }
 
@@ -57,17 +57,26 @@ lltm_is_installed <- function() {
   file.exists(lib_path())
 }
 
-install_lltm <- function(url = Sys.getenv("LLTM_URL", unset = NA)) {
+install_styleganr <- function(url = Sys.getenv("STYLEGANR_URL", unset = NA), cuda_version = Sys.getenv("CUDA")) {
+  
+  assertthat::assert_that(cuda_version %in% c("", "10.2", "11.1"))
 
   if (!interactive() && Sys.getenv("TORCH_INSTALL", unset = 0) == "0") return()
 
   if (is.na(url)) {
     tmp <- tempfile(fileext = ".zip")
-    version <- packageDescription("lltm")$Version
+    version <- packageDescription("styleganr")$Version
     os <- get_cmake_style_os()
-    dev <- if (torch::cuda_is_available()) "cu" else "cpu"
+    if (torch::cuda_is_available()) {
+      if(cuda_version == "") {
+        stop("CUDA installation of `torch` detected. You must specify which version of CUDA using the cuda_version argument or by setting the CUDA environmental variable")
+      }
+      dev <- paste0("cu", cuda_version)
+    } else {
+      dev <- "cpu"
+    }
 
-    url <- sprintf("https://github.com/mlverse/lltm/releases/download/liblltm/lltm-%s+%s-%s.zip",
+    url <- sprintf("https://github.com/rdinnager/styleganr/releases/download/libstyleganr/styleganr-%s+%s-%s.zip",
                    version, dev, os)
   }
 
