@@ -6,14 +6,35 @@
 // distribution of this software and related documentation without an express
 // license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-#define LANTERN_BUILD
-#include "lantern/lantern.h"
+//#define LANTERN_BUILD
+//#include "lantern/lantern.h"
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
 #include "bias_act.h"
 #include <torch/torch.h>
-#include "../../utils.hpp"
+//#include "../../utils.hpp"
+
+template <class T>
+class LanternObject
+{
+private:
+    T _object;
+    
+public:
+    LanternObject(T object) : _object(std::forward<T>(object))
+    {
+    }
+    
+    LanternObject()
+    {
+    }
+    
+    T &get()
+    {
+        return _object;
+    }
+};
 
 //------------------------------------------------------------------------
 
@@ -95,9 +116,9 @@ static torch::Tensor bias_act(torch::Tensor x, torch::Tensor b, torch::Tensor xr
 
 //------------------------------------------------------------------------
 
-void * _lantern_contrib_bias_act (void* x, void* b, void* xref, void* yref, void* dy, int grad, int dim, int act, float alpha, float gain, float clamp)
+void * _styleganr_bias_act (void* x, void* b, void* xref, void* yref, void* dy, int grad, int dim, int act, float alpha, float gain, float clamp)
 {
-    LANTERN_FUNCTION_START
+    //LANTERN_FUNCTION_START
     torch::Tensor result = bias_act(
         reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
         reinterpret_cast<LanternObject<torch::Tensor>*>(b)->get(), 
@@ -112,5 +133,5 @@ void * _lantern_contrib_bias_act (void* x, void* b, void* xref, void* yref, void
         clamp
     );
     return (void*) new LanternObject<torch::Tensor>(result);
-    LANTERN_FUNCTION_END
+    //LANTERN_FUNCTION_END
 }

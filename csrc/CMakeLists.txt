@@ -1,5 +1,5 @@
 # Project name and cmake minimum requirement.
-project(lltm)
+project(styleganr)
 cmake_minimum_required(VERSION 3.16)
 
 # We find a LibTorch installation trough the torch package.
@@ -10,6 +10,7 @@ execute_process (
     OUTPUT_VARIABLE TORCH_HOME
 )
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${TORCH_HOME}")
+message(STATUS "${TORCH_HOME}")
 
 # Now that the prefix path is set we can tell cmake to go
 # and find Torch.
@@ -20,7 +21,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 # If you want to separate your implementation in multiple files
 # add their paths after `src/lltm.cpp`, the spearator is a simple
 # space.
-set(LLTM_SRC src/lltm.cpp)
+set(STYLEGANR_SRC src/bias_act_cpu.cpp
+                  src/bias_act.cpp
+                  src/bias_act.cu)
 
 # On Windows we use module definition files to declare what are
 # the exported functions from the library. It's similar to the
@@ -28,34 +31,34 @@ set(LLTM_SRC src/lltm.cpp)
 # We need to fill it manually as its used to link the Rcpp interface
 # with the `csrc` library.
 if(WIN32)
-  set(LLRM_SRC ${LLTM_SRC} lltm.def)
+  set(STYLGANR_SRC ${STYLEGANR_SRC} styleganr.def)
 endif()
 
 # Tell cmake to build the shared library.
-add_library(lltm SHARED ${LLTM_SRC})
-add_library(lltm::library ALIAS lltm)
+cuda_add_library(styleganr SHARED ${STYLEGANR_SRC})
+add_library(styleganr::library ALIAS styleganr)
 
 # Tell cmake what are the include files.
-target_include_directories(lltm PUBLIC
+target_include_directories(styleganr PUBLIC
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}
 )
 
 # Tell cmake the libraries we want to link to.
-target_link_libraries(lltm "${TORCH_LIBRARIES}")
-set_property(TARGET lltm PROPERTY CXX_STANDARD 14)
+target_link_libraries(styleganr "${TORCH_LIBRARIES}")
+set_property(TARGET styleganr PROPERTY CXX_STANDARD 14)
 
 # Syncronize the headers and the def file with the Rcpp
 # interface.
-add_custom_command(TARGET lltm POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/src/lltm.def ${PROJECT_SOURCE_DIR}/../inst/def/lltm.def
+add_custom_command(TARGET styleganr POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/src/styleganr.def ${PROJECT_SOURCE_DIR}/../inst/def/styleganr.def
     COMMENT "Copied def file to inst folder."
 )
 
-add_custom_command(TARGET lltm POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/lltm/lltm.h ${PROJECT_SOURCE_DIR}/../src/lltm/lltm.h
+add_custom_command(TARGET styleganr POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/styleganr.h ${PROJECT_SOURCE_DIR}/../src/styleganr/styleganr.h
     COMMENT "Copied lltm.h file to src folder."
 )
-
 
 # Set CPack related code to automatically generate installation bundles.
 # The bundle name will have the same version as defined in the R DESCRIPTION
@@ -75,8 +78,8 @@ else()
 endif()
 
 
-install(TARGETS lltm DESTINATION lib)
+install(TARGETS styleganr DESTINATION lib)
 include(CPack)
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../inst)
-install(TARGETS lltm DESTINATION lib)
+install(TARGETS styleganr DESTINATION lib)

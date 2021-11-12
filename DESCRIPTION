@@ -12,6 +12,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
+    Rcpp,
     assertthat,
     glue,
     purrr,
@@ -19,3 +20,7 @@ Imports:
     zeallot
 Depends: 
     torch
+LinkingTo: 
+    Rcpp, torch
+Remotes:
+    mlverse/torch@feature/install-headers

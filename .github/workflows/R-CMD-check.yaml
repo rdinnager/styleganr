@@ -16,7 +16,7 @@ jobs:
 
   Build-Libs:
 
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '#build-libs')
     runs-on: ${{ matrix.config.os }}
 
     strategy:
