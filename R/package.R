@@ -7,12 +7,12 @@ NULL
 .onLoad <- function(lib, pkg) {
   if (torch::torch_is_installed()) {
 
-    if (!lltm_is_installed())
-      install_lltm()
+    if (!styleganr_is_installed())
+      install_styleganr()
 
-    if (!lltm_is_installed()) {
+    if (!styleganr_is_installed()) {
       if (interactive())
-        warning("liblltm is not installed. Run `intall_lltm()` before using the package.")
+        warning("libstyleganr is not installed. Run `intall_styleganr()` before using the package.")
     } else {
       dyn.load(lib_path(), local = FALSE)
 
@@ -22,7 +22,7 @@ NULL
       if (file.exists(pkgload))
         dyn.load(pkgload)
       else
-        library.dynam("lltm", pkg, lib)
+        library.dynam("styleganr", pkg, lib)
     }
   }
 }
@@ -31,7 +31,7 @@ inst_path <- function() {
   install_path <- Sys.getenv("STYLEGANR_HOME")
   if (nzchar(install_path)) return(install_path)
 
-  system.file("", package = "lltm")
+  system.file("deps", package = "styleganr")
 }
 
 lib_path <- function() {
@@ -53,7 +53,7 @@ lib_ext <- function() {
     ".dll"
 }
 
-lltm_is_installed <- function() {
+styleganr_is_installed <- function() {
   file.exists(lib_path())
 }
 

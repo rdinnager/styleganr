@@ -11,7 +11,7 @@ all: clean styleganr
 # a plain text file.
 # But MingGW can't take the .def file as an input to the linker, so we need to
 # create the import library.
-lltm: clean
+styleganr: clean
 	$(DLLTOOL) -d ../inst/def/styleganr.def -l styleganr.lib
 
 clean:

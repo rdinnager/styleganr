@@ -13,7 +13,9 @@ if (dir.exists("csrc")) {
   
   withr::with_dir("csrc/build", {
     system("cmake ..")
-    system("cmake --build . --target package --config Release --parallel 8")  
+    system("cmake --build . --target package --config Release --parallel 8")
+    message("copying libraries ...")
+    system("cmake --install .")
   })
   
   # # copy lantern
