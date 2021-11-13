@@ -25,13 +25,16 @@ NULL
         library.dynam("styleganr", pkg, lib)
     }
   }
+  ## memoised functions
+  .conv2d_gradfix <<- memoise::memoise(.conv2d_gradfix)
+  .bias_act_cuda <<- memoise::memoise(.bias_act_cuda)
 }
 
 inst_path <- function() {
   install_path <- Sys.getenv("STYLEGANR_HOME")
   if (nzchar(install_path)) return(install_path)
 
-  system.file("deps", package = "styleganr")
+  system.file("", package = "styleganr")
 }
 
 lib_path <- function() {

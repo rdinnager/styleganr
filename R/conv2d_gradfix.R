@@ -38,7 +38,7 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
   return(xs)
 }
 
-.conv2d_gradfix_ <- function(transpose, weight_shape, stride, padding, output_padding, dilation, groups) {
+.conv2d_gradfix <- function(transpose, weight_shape, stride, padding, output_padding, dilation, groups) {
 
   .null_tensor <- torch_empty(0)
   # Parse arguments.
@@ -244,6 +244,4 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
 
 }
 
-## make cacheable
-.conv2d_gradfix <- memoise::memoise(.conv2d_gradfix_)
 

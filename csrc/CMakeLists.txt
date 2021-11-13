@@ -71,7 +71,7 @@ endif()
 # We need to fill it manually as its used to link the Rcpp interface
 # with the `csrc` library.
 if(WIN32)
-  set(STYLGANR_SRC ${STYLEGANR_SRC} SRC/styleganr.def)
+  set(STYLGANR_SRC ${STYLEGANR_SRC} src/styleganr.def)
 endif()
 
 # Tell cmake to build the shared library.

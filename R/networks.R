@@ -95,7 +95,7 @@ FullyConnectedLayer <- nn_module(
       x <- torch_addmm(b$unsqueeze(1), x, w$t())
     } else {
       x <- x$matmul(w$t())
-      x <- contrib_bias_act(x, b, dim = 2, act = self$activation)  ## bias_act: this is custom cuda op, must be imported
+      x <- bias_act(x, b, dim = 2, act = self$activation)  ## bias_act: this is custom cuda op, must be imported
     }
     
     return(x)
