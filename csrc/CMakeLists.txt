@@ -99,7 +99,7 @@ add_custom_command(TARGET styleganr POST_BUILD
 )
 
 add_custom_command(TARGET styleganr POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/styleganr.h ${PROJECT_SOURCE_DIR}/../src/styleganr/styleganr.h
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/styleganr/styleganr.h ${PROJECT_SOURCE_DIR}/../src/styleganr/styleganr.h
     COMMENT "Copied styleganr.h file to src folder."
 )
 

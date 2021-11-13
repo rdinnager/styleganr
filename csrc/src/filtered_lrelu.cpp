@@ -12,6 +12,7 @@
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
 #include "lantern_ob.h"
+#include "styleganr/styleganr.h"
 #include "filtered_lrelu.h"
 #include <torch/torch.h>
 //#include "../../utils.hpp"
@@ -296,7 +297,7 @@ static torch::Tensor filtered_lrelu_act(torch::Tensor x, torch::Tensor si, int s
 
 //------------------------------------------------------------------------
 
-void * _styleganr_filtered_lrelu_act (void* x, void* si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns)
+STYLEGANR_API void * _styleganr_filtered_lrelu_act (void* x, void* si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns)
 {
     //LANTERN_FUNCTION_START
     torch::Tensor result = filtered_lrelu_act(
