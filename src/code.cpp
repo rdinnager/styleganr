@@ -10,7 +10,7 @@
 // [[Rcpp::export]]
 XPtrTorchTensor cpp_bias_act (XPtrTorchTensor x, XPtrTorchTensor b, XPtrTorchTensor xref, XPtrTorchTensor yref, XPtrTorchTensor dy, int grad, int dim, int act, float alpha, float gain, float clamp)
 {
-  return XPtrTorchTensor(_styleganr_bias_act(
+  return XPtrTorchTensor(c_styleganr_bias_act(
       x.get(), 
       b.get(), 
       xref.get(), 
