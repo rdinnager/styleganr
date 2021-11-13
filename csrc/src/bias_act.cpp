@@ -96,7 +96,7 @@ static torch::Tensor bias_act(torch::Tensor x, torch::Tensor b, torch::Tensor xr
 
 //------------------------------------------------------------------------
 
-void * c_styleganr_bias_act (void* x, void* b, void* xref, void* yref, void* dy, int grad, int dim, int act, float alpha, float gain, float clamp)
+STYLEGANR_API void * c_styleganr_bias_act (void* x, void* b, void* xref, void* yref, void* dy, int grad, int dim, int act, float alpha, float gain, float clamp)
 {
     //LANTERN_FUNCTION_START
     torch::Tensor result = bias_act(
