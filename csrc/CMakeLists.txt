@@ -85,7 +85,6 @@ add_library(styleganr::library ALIAS styleganr)
 # Tell cmake what are the include files.
 target_include_directories(styleganr PUBLIC
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}
 )
 
 # Tell cmake the libraries we want to link to.
