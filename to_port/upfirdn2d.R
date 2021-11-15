@@ -18,29 +18,35 @@
     return(c(sx, sy))
 }
 
-def _parse_padding(padding):
-    if isinstance(padding, int):
-        padding = [padding, padding]
-    assert isinstance(padding, (list, tuple))
-    assert all(isinstance(x, int) for x in padding)
-    if len(padding) == 2:
-        padx, pady = padding
-        padding = [padx, padx, pady, pady]
-    padx0, padx1, pady0, pady1 = padding
-    return padx0, padx1, pady0, pady1
+.parse_padding <- function(padding) {
+    if(length(padding) == 1 | length(padding == 2)) {
+        padding <- c(padding, padding)
+    }
+    assertthat::assert_that(length(padding) == 2 || length(padding) == 4)
+    assertthat::assert_that(all(is.integer(padding)))
+    if(length(padding) == 2) {
+        padx <- pady <- NULL
+        c(padx, pady) %<-% padding
+        padding <- c(padx, padx, pady, pady)
+    }
+    padx0 <- padx1 <- pady0 <- pady0 <- NULL
+    c(padx0, padx1, pady0, pady1) %<-% padding
+    return(c(padx0, padx1, pady0, pady1))
+}
 
-def _get_filter_size(f):
-    if f is None:
-        return 1, 1
-    assert isinstance(f, torch.Tensor) and f.ndim in [1, 2]
-    fw = f.shape[-1]
-    fh = f.shape[0]
-    with misc.suppress_tracer_warnings():
-        fw = int(fw)
-        fh = int(fh)
-    misc.assert_shape(f, [fh, fw][:f.ndim])
-    assert fw >= 1 and fh >= 1
-    return fw, fh
+.get_filter_size <- function(f) {
+    if(is.null(f)) {
+        return(c(1, 1))
+    }
+    assertthat::assert_that(is_torch_tensor(f) & f$ndim %in% c(1, 2))
+    fw <- f$shape[-1]
+    fh <- f$shape[1]
+    fw <- as.interger(fw)
+    fh <- as.integer(fh)
+    assert_shape(f, c(fh, fw)[1:f$ndim])
+    assertthat::assert_that(fw >= 1 & fh >= 1)
+    return(c(fw, fh))
+}
 
 #----------------------------------------------------------------------------
 
