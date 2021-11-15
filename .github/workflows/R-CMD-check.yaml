@@ -29,9 +29,9 @@ jobs:
           - {os: windows-latest, cuda: 0}
           - {os: windows-latest, cuda: 10.2}
           - {os: windows-latest, cuda: 11.1}
-          - {os: ubuntu-18.04, cuda:0}
-          - {os: ubuntu-18.04, cuda:10.2}
-          - {os: ubuntu-18.04, cuda:11.1}
+          - {os: ubuntu-18.04, cuda: 0}
+          - {os: ubuntu-18.04, cuda: 10.2}
+          - {os: ubuntu-18.04, cuda: 11.1}
 
     env:
       TORCH_INSTALL: 1
