@@ -137,6 +137,7 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
       
       print("conv2d backward..")
       
+      input <- weight <- input_shape <- NULL
       c(input, weight, input_shape) %<-% ctx$saved_variables
 
       grad_input <- .null_tensor

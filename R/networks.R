@@ -9,7 +9,7 @@
 #'
 #' @return
 #' @export
-#' @importFrom zeallot %<-%
+#' @importFrom zeallot `%<-%`
 #'
 #' @examples
 modulated_conv2d <- function(
@@ -22,6 +22,7 @@ modulated_conv2d <- function(
 ) {
 
   batch_size <- x$shape[1]
+  out_channels <- in_channels <- kh <- kw <- NULL
   c(out_channels, in_channels, kh, kw) %<-% w$shape
   assert_shape(w, c(out_channels, in_channels, kh, kw)) # [OIkk]
   assert_shape(x, c(batch_size, in_channels, NA, NA)) # [NIHW]

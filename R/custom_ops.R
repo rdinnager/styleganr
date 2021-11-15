@@ -58,7 +58,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
 }
 #----------------------------------------------------------------------------
 
-#' Slow reference implementation of `bias_act()` using standard torch ops.
+# Slow reference implementation of `bias_act()` using standard torch ops.
 .bias_act_ref <- function(x, b = NULL, dim = 1, spec = list(name = 'linear', func = function(x, ...) x, def_alpha = 0, def_gain = 1, cuda_idx = 1, ref = '', has_2nd_grad = FALSE), alpha = NULL, gain = NULL, clamp = NULL) {
   
   stopifnot(is_torch_tensor(x))
@@ -105,7 +105,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
 
 #----------------------------------------------------------------------------
 
-#' Fast CUDA implementation of `bias_act()` using custom ops.
+# Fast CUDA implementation of `bias_act()` using custom ops.
 .bias_act_cuda <- function(dim = 1, spec = list(name = 'linear', func = function(x, ...) x, def_alpha = 0, def_gain = 1, cuda_idx = 1, ref = '', has_2nd_grad = FALSE), alpha = NULL, gain = NULL, clamp = NULL) {
   # Parse arguments.
   stopifnot(is.null(clamp) | clamp >= 0)

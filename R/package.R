@@ -1,6 +1,8 @@
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
 #' @importFrom utils download.file packageDescription unzip
+#' @importFrom stats rnorm
+#' @import torch
 ## usethis namespace: end
 NULL
 

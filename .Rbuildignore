@@ -1,3 +1,8 @@
 ^styleganr\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^\.github$
+^csrc$
+^inst/lib$
+^to_port$
+^README\.Rmd$
