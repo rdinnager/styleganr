@@ -77,24 +77,28 @@ setup_filter <- function(f, device = torch_device('cpu'), normalize = TRUE, flip
     assertthat::assert_that(f$ndim %in% c(0, 1, 2))
     assertthat::assert_that(f$numel() > 0)
     if(f$ndim == 0) {
-        f = f[np.newaxis]
+        f =  f$unsqueeze(1)
     }
 
     # Separable?
-    if separable is None:
-        separable = (f.ndim == 1 and f.numel() >= 8)
-    if f.ndim == 1 and not separable:
-        f = f.ger(f)
-    assert f.ndim == (1 if separable else 2)
+    if(is.null(separable)) {
+        separable <- (f$ndim == 1 & f$numel() >= 8)
+    }
+    if(f$ndim == 1 & !separable) {
+        f <- f$`ger`(f)
+    }
+    assertthat::assert_that(f$ndim == (if(separable) 1 else 2))
 
     # Apply normalize, flip, gain, and device.
-    if normalize:
-        f /= f.sum()
-    if flip_filter:
-        f = f.flip(list(range(f.ndim)))
-    f = f * (gain ** (f.ndim / 2))
-    f = f.to(device=device)
-    return f
+    if(normalize) {
+        f <- f / f$sum()
+    }
+    if(flip_filter) {
+        f <- f$flip(seq_len(f$ndim))
+    }
+    f <- f * (gain^(f$ndim / 2))
+    f <- f$to(device = device)
+    return(f)
 }
 
 #----------------------------------------------------------------------------
