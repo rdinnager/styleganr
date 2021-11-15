@@ -50,35 +50,35 @@
 
 #----------------------------------------------------------------------------
 
-def setup_filter(f, device=torch.device('cpu'), normalize=True, flip_filter=False, gain=1, separable=None):
-    r"""Convenience function to setup 2D FIR filter for `upfirdn2d()`.
-
-    Args:
-        f:           Torch tensor, numpy array, or python list of the shape
-                     `[filter_height, filter_width]` (non-separable),
-                     `[filter_taps]` (separable),
-                     `[]` (impulse), or
-                     `None` (identity).
-        device:      Result device (default: cpu).
-        normalize:   Normalize the filter so that it retains the magnitude
-                     for constant input signal (DC)? (default: True).
-        flip_filter: Flip the filter? (default: False).
-        gain:        Overall scaling factor for signal magnitude (default: 1).
-        separable:   Return a separable filter? (default: select automatically).
-
-    Returns:
-        Float32 tensor of the shape
-        `[filter_height, filter_width]` (non-separable) or
-        `[filter_taps]` (separable).
-    """
+#' Convenience function to setup 2D FIR filter for [upfirdn2d()].
+#' 
+#' @param f Torch tensor, or R array of the shape: `c(filter_height, filter_width)` (non-separable),
+#' `filter_taps` (separable), `interger()` (impulse), or `NULL` (identity).
+#' @param device Result device (default: cpu).
+#' @param normalize Normalize the filter so that it retains the magnitude
+#' for constant input signal (DC)? (default: TRUE).
+#' @param flip_filter Flip the filter? (default: FALSE).
+#' @param gain Overall scaling factor for signal magnitude (default: 1).
+#' @param separable Return a separable filter? (default: select automatically).
+#' 
+#' @return Float32 tensor of the shape: `c(filter_height, filter_width)` (non-separable) or
+#' `filter_taps` (separable).
+setup_filter <- function(f, device = torch_device('cpu'), normalize = TRUE, flip_filter = FALSE, 
+                         gain = 1, separable = NULL) {
     # Validate.
-    if f is None:
-        f = 1
-    f = torch.as_tensor(f, dtype=torch.float32)
-    assert f.ndim in [0, 1, 2]
-    assert f.numel() > 0
-    if f.ndim == 0:
+    if(is.null(f)) {
+        f <- 1
+    }
+    if(is_torch_tensor(f)) {
+        f$to(torch_float32())
+    } else {
+        f <- torch_tensor(f, dtype = torch_float32)
+    }
+    assertthat::assert_that(f$ndim %in% c(0, 1, 2))
+    assertthat::assert_that(f$numel() > 0)
+    if(f$ndim == 0) {
         f = f[np.newaxis]
+    }
 
     # Separable?
     if separable is None:
@@ -95,6 +95,7 @@ def setup_filter(f, device=torch.device('cpu'), normalize=True, flip_filter=Fals
     f = f * (gain ** (f.ndim / 2))
     f = f.to(device=device)
     return f
+}
 
 #----------------------------------------------------------------------------
 
