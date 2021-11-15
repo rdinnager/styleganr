@@ -21,7 +21,7 @@ test_tensor <- function(...) {
   torch_tensor(array(dat, dim = unlist(dims)))
 }
 
-is_tensor <- function(x) {
+is_torch_tensor <- function(x) {
   inherits(x, "torch_tensor")
 }
 
