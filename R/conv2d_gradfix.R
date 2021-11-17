@@ -15,7 +15,7 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
 #----------------------------------------------------------------------------
 
 .should_use_custom_op <- function(input) {
-  assertthat::assert_that(is_tensor(input))
+  assertthat::assert_that(is_torch_tensor(input))
 
   if(!(Sys.getenv("STYLEGAN_GRADFIX_ENABLED") == 1)) {
     return(FALSE)

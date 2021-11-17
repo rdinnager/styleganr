@@ -24,3 +24,63 @@ XPtrTorchTensor cpp_bias_act (XPtrTorchTensor x, XPtrTorchTensor b, XPtrTorchTen
       clamp)
   );
 }
+
+
+// [[Rcpp::export]]
+XPtrTorchTensor cpp_upfirdn2d (XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
+{
+  return XPtrTorchTensor(c_styleganr_upfirdn2d(
+      x.get(), 
+      f.get(), 
+      upx, 
+      upy, 
+      downx, 
+      downy, 
+      padx0, 
+      padx1, 
+      pady0, 
+      pady1, 
+      flip, 
+      gain)
+  );
+}
+
+// [[Rcpp::export]]
+XPtrTorchTensor cpp_filtered_lrelu_act (XPtrTorchTensor x, XPtrTorchTensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns)
+{
+  return XPtrTorchTensor(c_styleganr_filtered_lrelu_act(
+      x.get(), 
+      si.get(), 
+      sx, 
+      sy, 
+      gain, 
+      slope, 
+      clamp, 
+      writeSigns)
+  );
+}
+
+// [[Rcpp::export]]
+XPtrTorchTuple cpp_filtered_lrelu (XPtrTorchTensor x, XPtrTorchTensor fu, XPtrTorchTensor fd, XPtrTorchTensor b, XPtrTorchTensor si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns)
+{
+  return XPtrTorchTuple(c_styleganr_filtered_lrelu(
+      x.get(), 
+      fu.get(), 
+      fd.get(), 
+      b.get(), 
+      si.get(), 
+      up, 
+      down, 
+      px0, 
+      px1, 
+      py0, 
+      py1, 
+      sx, 
+      sy, 
+      gain, 
+      slope,
+      clamp, 
+      flip_filters, 
+      writeSigns)
+  );
+}

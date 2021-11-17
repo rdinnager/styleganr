@@ -148,7 +148,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
       
       if(spec$name != 'linear' | gain != 1 | clamp >= 0 | !torch_equal(b, .null_tensor)) {
         ## dim - 1L to switch to zero-based expected by compiled function 
-        y <- cpp_contrib_torch_bias_act(x, b, .null_tensor, .null_tensor, .null_tensor, 0, dim - 1L, spec$cuda_idx, alpha, gain, clamp)
+        y <- cpp_bias_act(x, b, .null_tensor, .null_tensor, .null_tensor, 0, dim - 1L, spec$cuda_idx, alpha, gain, clamp)
       }
       
       ctx$save_for_backward(
@@ -193,7 +193,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
   BiasActCudaGrad <- autograd_function(
     forward = function(ctx, dy, x, b, y) {
       memory_format <- if(dy$ndim > 2 & dy$stride(1) == 1) torch_channels_last() else torch_contiguous_format()
-      dx <- cpp_contrib_torch_bias_act(dy, b, x, y, .null_tensor, 1, dim - 1L, spec$cuda_idx, alpha, gain, clamp)
+      dx <- cpp_bias_act(dy, b, x, y, .null_tensor, 1, dim - 1L, spec$cuda_idx, alpha, gain, clamp)
       ctx$save_for_backward(
         if(spec$has_2nd_grad) dy else .null_tensor,
         x, 
@@ -219,7 +219,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
       }
       
       if(spec$has_2nd_grad & (ctx$needs_input_grad[2] | ctx$needs_input_grad[3])) {
-        d_x <- cpp_contrib_torch_bias_act(d_dx, b, x, y, dy, 2, dim - 1L, spec$cuda_idx, alpha, gain, clamp)
+        d_x <- cpp_bias_act(d_dx, b, x, y, dy, 2, dim - 1L, spec$cuda_idx, alpha, gain, clamp)
       }
       
       if(spec$has_2nd_grad & ctx$needs_input_grad[3]) {

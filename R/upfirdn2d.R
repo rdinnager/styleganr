@@ -11,7 +11,7 @@
         scaling <- c(scaling, scaling)
     }
     assertthat::assert_that(length(scaling) == 2)
-    assertthat::assert_that(all(is.integer(scaling)))
+    assertthat::assert_that(all(as.integer(scaling) == scaling))
     sx <- sy <- NULL
     c(sx, sy) %<-% scaling
     assertthat::assert_that(sx >= 1 & sy >= 1)
@@ -19,11 +19,11 @@
 }
 
 .parse_padding <- function(padding) {
-    if(length(padding) == 1 | length(padding == 2)) {
+    if(length(padding) == 1 | length(padding) == 2) {
         padding <- c(padding, padding)
     }
     assertthat::assert_that(length(padding) == 2 || length(padding) == 4)
-    assertthat::assert_that(all(is.integer(padding)))
+    assertthat::assert_that(all(as.integer(padding) == padding))
     if(length(padding) == 2) {
         padx <- pady <- NULL
         c(padx, pady) %<-% padding
@@ -129,7 +129,7 @@ setup_filter <- function(f, device = torch_device('cpu'), normalize = TRUE, flip
 #' @param padding Padding with respect to the upsampled image. Can be a single number
 #' or a vector `c(x, y)` or `c(x_before, x_after, y_before, y_after)`
 #' (default: 0).
-#' @param flip_filter `FALSE` = convolution, `TRUE` = correlation (default: False).
+#' @param flip_filter `FALSE` = convolution, `TRUE` = correlation (default: `FALSE`).
 #' @param gain Overall scaling factor for signal magnitude (default: 1).
 #' @param impl Implementation to use. Can be `'ref'` or `'cuda'` 
 #' (default: `'cuda'` if `torch::cuda_is_available() == TRUE`, `'ref'` otherwise).
@@ -177,8 +177,8 @@ upfirdn2d <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, 
 
     # Pad or crop.
     x <- nnf_pad(x, c(max(padx0, 0), max(padx1, 0), max(pady0, 0), max(pady1, 0)))
-    x <- x[ ,  , max(-(pady0 + 1), 1):(x$shape[3] - max(-(pady1 + 1), 1)), 
-            max(-(padx0 + 1), 1):(x$shape[4] - max(-(padx1 + 1), 1))]
+    x <- x[ ,  , max(-(pady0 - 1), 1):(x$shape[3] - max(-(pady1), 0)), 
+            max(-(padx0 - 1), 1):(x$shape[4] - max(-(padx1), 0))]
 
     # Setup filter.
     f <- f * (gain^(f$ndim / 2))
@@ -233,7 +233,7 @@ upfirdn2d <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, 
             }
             ctx$save_for_backward(f, x$shape)
             return(y)
-        }
+        },
 
         backward = function(ctx, dy) {
             f <- x_shape <- ih <- iw <- oh <- ow <- fw <- fh <- NULL
@@ -279,7 +279,7 @@ upfirdn2d <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, 
 #' @param padding Padding with respect to the output. Can be a single number or a
 #' vector `c(x, y)` or `c(x_before, x_after, y_before, y_after)`
 #' (default: 0).
-#' @param flip_filter `FALSE` = convolution, `TRUE` = correlation (default: False).
+#' @param flip_filter `FALSE` = convolution, `TRUE` = correlation (default: `FALSE`).
 #' @param gain Overall scaling factor for signal magnitude (default: 1).
 #' @param impl Implementation to use. Can be `'ref'` or `'cuda'` 
 #' (default: `'cuda'` if `torch::cuda_is_available() == TRUE`, `'ref'` otherwise).
@@ -290,10 +290,10 @@ filter2d <- function(x, f, padding = 0, flip_filter = FALSE, gain = 1, impl = if
     c(padx0, padx1, pady0, pady1) %<-% .parse_padding(padding)
     c(fw, fh) %<-% .get_filter_size(f)
     p <- c(
-        padx0 + fw %//% 2,
-        padx1 + (fw - 1) %//% 2,
-        pady0 + fh %//% 2,
-        pady1 + (fh - 1) %//% 2,
+        padx0 + fw %/% 2,
+        padx1 + (fw - 1) %/% 2,
+        pady0 + fh %/% 2,
+        pady1 + (fh - 1) %/% 2,
     )
     return(upfirdn2d(x, f, padding = p, flip_filter = flip_filter, gain = gain, impl = impl))
 }
@@ -315,10 +315,10 @@ upsample2d <- function(x, f, up = 2, padding = 0, flip_filter = FALSE, gain = 1,
     c(padx0, padx1, pady0, pady1) %,-% .parse_padding(padding)
     c(fw, fh) %<-% .get_filter_size(f)
     p <- c(
-        padx0 + (fw + upx - 1) %//% 2,
-        padx1 + (fw - upx) %//% 2,
-        pady0 + (fh + upy - 1) %//% 2,
-        pady1 + (fh - upy) %//% 2,
+        padx0 + (fw + upx - 1) %/% 2,
+        padx1 + (fw - upx) %/% 2,
+        pady0 + (fh + upy - 1) %/% 2,
+        pady1 + (fh - upy) %/% 2,
     )
     return(upfirdn2d(x, f, up = up, padding = p, flip_filter = flip_filter, gain = gain * upx * upy, impl = impl))
 }
@@ -341,10 +341,10 @@ downsample2d <- function(x, f, down = 2, padding = 0, flip_filter = FALSE, gain 
     c(padx0, padx1, pady0, pady1) %<-% .parse_padding(padding)
     c(fw, fh) %<-% .get_filter_size(f)
     p <- c(
-        padx0 + (fw - downx + 1) %//% 2,
-        padx1 + (fw - downx) %//% 2,
-        pady0 + (fh - downy + 1) %//% 2,
-        pady1 + (fh - downy) %//% 2,
+        padx0 + (fw - downx + 1) %/% 2,
+        padx1 + (fw - downx) %/% 2,
+        pady0 + (fh - downy + 1) %/% 2,
+        pady1 + (fh - downy) %/% 2,
     )
     return(upfirdn2d(x, f, down = down, padding = p, flip_filter = flip_filter, gain = gain, impl = impl))
     

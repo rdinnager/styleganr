@@ -105,7 +105,7 @@ static torch::Tensor upfirdn2d(torch::Tensor x, torch::Tensor f, int upx, int up
 
 //------------------------------------------------------------------------
 
-STYLEGANR_API void * _styleganr_upfirdn2d (void* x, void* f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
+STYLEGANR_API void * c_styleganr_upfirdn2d (void* x, void* f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
 {
     //LANTERN_FUNCTION_START
     torch::Tensor result = upfirdn2d(

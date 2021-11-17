@@ -32,9 +32,80 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_upfirdn2d
+XPtrTorchTensor cpp_upfirdn2d(XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain);
+RcppExport SEXP _styleganr_cpp_upfirdn2d(SEXP xSEXP, SEXP fSEXP, SEXP upxSEXP, SEXP upySEXP, SEXP downxSEXP, SEXP downySEXP, SEXP padx0SEXP, SEXP padx1SEXP, SEXP pady0SEXP, SEXP pady1SEXP, SEXP flipSEXP, SEXP gainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type f(fSEXP);
+    Rcpp::traits::input_parameter< int >::type upx(upxSEXP);
+    Rcpp::traits::input_parameter< int >::type upy(upySEXP);
+    Rcpp::traits::input_parameter< int >::type downx(downxSEXP);
+    Rcpp::traits::input_parameter< int >::type downy(downySEXP);
+    Rcpp::traits::input_parameter< int >::type padx0(padx0SEXP);
+    Rcpp::traits::input_parameter< int >::type padx1(padx1SEXP);
+    Rcpp::traits::input_parameter< int >::type pady0(pady0SEXP);
+    Rcpp::traits::input_parameter< int >::type pady1(pady1SEXP);
+    Rcpp::traits::input_parameter< bool >::type flip(flipSEXP);
+    Rcpp::traits::input_parameter< float >::type gain(gainSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_upfirdn2d(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_filtered_lrelu_act
+XPtrTorchTensor cpp_filtered_lrelu_act(XPtrTorchTensor x, XPtrTorchTensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns);
+RcppExport SEXP _styleganr_cpp_filtered_lrelu_act(SEXP xSEXP, SEXP siSEXP, SEXP sxSEXP, SEXP sySEXP, SEXP gainSEXP, SEXP slopeSEXP, SEXP clampSEXP, SEXP writeSignsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type si(siSEXP);
+    Rcpp::traits::input_parameter< int >::type sx(sxSEXP);
+    Rcpp::traits::input_parameter< int >::type sy(sySEXP);
+    Rcpp::traits::input_parameter< float >::type gain(gainSEXP);
+    Rcpp::traits::input_parameter< float >::type slope(slopeSEXP);
+    Rcpp::traits::input_parameter< float >::type clamp(clampSEXP);
+    Rcpp::traits::input_parameter< bool >::type writeSigns(writeSignsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_filtered_lrelu_act(x, si, sx, sy, gain, slope, clamp, writeSigns));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_filtered_lrelu
+XPtrTorchTuple cpp_filtered_lrelu(XPtrTorchTensor x, XPtrTorchTensor fu, XPtrTorchTensor fd, XPtrTorchTensor b, XPtrTorchTensor si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns);
+RcppExport SEXP _styleganr_cpp_filtered_lrelu(SEXP xSEXP, SEXP fuSEXP, SEXP fdSEXP, SEXP bSEXP, SEXP siSEXP, SEXP upSEXP, SEXP downSEXP, SEXP px0SEXP, SEXP px1SEXP, SEXP py0SEXP, SEXP py1SEXP, SEXP sxSEXP, SEXP sySEXP, SEXP gainSEXP, SEXP slopeSEXP, SEXP clampSEXP, SEXP flip_filtersSEXP, SEXP writeSignsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type fu(fuSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type fd(fdSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type b(bSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type si(siSEXP);
+    Rcpp::traits::input_parameter< int >::type up(upSEXP);
+    Rcpp::traits::input_parameter< int >::type down(downSEXP);
+    Rcpp::traits::input_parameter< int >::type px0(px0SEXP);
+    Rcpp::traits::input_parameter< int >::type px1(px1SEXP);
+    Rcpp::traits::input_parameter< int >::type py0(py0SEXP);
+    Rcpp::traits::input_parameter< int >::type py1(py1SEXP);
+    Rcpp::traits::input_parameter< int >::type sx(sxSEXP);
+    Rcpp::traits::input_parameter< int >::type sy(sySEXP);
+    Rcpp::traits::input_parameter< float >::type gain(gainSEXP);
+    Rcpp::traits::input_parameter< float >::type slope(slopeSEXP);
+    Rcpp::traits::input_parameter< float >::type clamp(clampSEXP);
+    Rcpp::traits::input_parameter< bool >::type flip_filters(flip_filtersSEXP);
+    Rcpp::traits::input_parameter< bool >::type writeSigns(writeSignsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_filtered_lrelu(x, fu, fd, b, si, up, down, px0, px1, py0, py1, sx, sy, gain, slope, clamp, flip_filters, writeSigns));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_styleganr_cpp_bias_act", (DL_FUNC) &_styleganr_cpp_bias_act, 11},
+    {"_styleganr_cpp_upfirdn2d", (DL_FUNC) &_styleganr_cpp_upfirdn2d, 12},
+    {"_styleganr_cpp_filtered_lrelu_act", (DL_FUNC) &_styleganr_cpp_filtered_lrelu_act, 8},
+    {"_styleganr_cpp_filtered_lrelu", (DL_FUNC) &_styleganr_cpp_filtered_lrelu, 18},
     {NULL, NULL, 0}
 };
 

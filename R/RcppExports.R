@@ -5,3 +5,15 @@ cpp_bias_act <- function(x, b, xref, yref, dy, grad, dim, act, alpha, gain, clam
     .Call('_styleganr_cpp_bias_act', PACKAGE = 'styleganr', x, b, xref, yref, dy, grad, dim, act, alpha, gain, clamp)
 }
 
+cpp_upfirdn2d <- function(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain) {
+    .Call('_styleganr_cpp_upfirdn2d', PACKAGE = 'styleganr', x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain)
+}
+
+cpp_filtered_lrelu_act <- function(x, si, sx, sy, gain, slope, clamp, writeSigns) {
+    .Call('_styleganr_cpp_filtered_lrelu_act', PACKAGE = 'styleganr', x, si, sx, sy, gain, slope, clamp, writeSigns)
+}
+
+cpp_filtered_lrelu <- function(x, fu, fd, b, si, up, down, px0, px1, py0, py1, sx, sy, gain, slope, clamp, flip_filters, writeSigns) {
+    .Call('_styleganr_cpp_filtered_lrelu', PACKAGE = 'styleganr', x, fu, fd, b, si, up, down, px0, px1, py0, py1, sx, sy, gain, slope, clamp, flip_filters, writeSigns)
+}
+

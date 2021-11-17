@@ -30,6 +30,8 @@ NULL
   ## memoised functions
   .conv2d_gradfix <<- memoise::memoise(.conv2d_gradfix)
   .bias_act_cuda <<- memoise::memoise(.bias_act_cuda)
+  .upfirdn2d_cuda <<- memoise::memoise(.upfirdn2d_cuda)
+  .filtered_lrelu_cuda <<- memoise::memoise(.filtered_lrelu_cuda)
 }
 
 inst_path <- function() {
