@@ -1,3 +1,20 @@
+#' Get a pretrained StyleGAN3 model
+#' 
+#' The model will be downloaded to a local directory if you do not have it already.
+#' otherwise the locally cached version will be used.
+#'
+#' @param model_name Name of the model
+#' @param flavour The flavour of the model: `'r'` for rotation-invariant, `'t'` for
+#' translation invariant.
+#' @param res The resolution of the model.
+#' @param dir Directory to save the model to. By default it will be saved to your user
+#' data directory.
+#' @param device Device to load the model onto: `'cpu'` or `'gpu'`
+#'
+#' @return A [torch::nn_module()] object.
+#' @export
+#'
+#' @examples
 sgr_get_model <- function(model_name = c("afhqv2"), flavour = c("r", "t"), res = c("512", "1024"),
                            dir = rappdirs::user_data_dir("styleganr"),
                           device = c("cpu", "cuda")) {
