@@ -5,21 +5,35 @@ G <- Generator(z_dim = 512, c_dim = 0, w_dim = 512, img_resolution = 512, img_ch
 G_state <- load_state_dict("F:/misc/yuruchara-512x512-final.pt")
 
 G$load_state_dict(G_state)
+G$eval()
 
-z <- torch_randn(1, 512)$cuda()
-c <- torch_zeros(1)$cuda()
+z <- torch_randn(1, 512)#$cuda()
+c <- torch_zeros(1)
 
 #debug(G$synthesis)
-test <- G(z, c)
 
 as_cimg <- function(x) {
-  im <- as_array(test$clamp(-1, 1)$cpu()) 
+  im <- as_array(x$clamp(-1, 1)$cpu()) 
   im <- aperm(im, c(4, 3, 1, 2))
   im <- (im + 1) / 2
   im <- imager::as.cimg(im)
   im
 }
 plot(as_cimg(test))
+
+sample_image <- function(G, z) {
+  
+  with_no_grad({
+    dev <- G$mapping$fc0$weight$device
+    z <- torch_tensor(z)$unsqueeze(1)$to(device = dev)
+    im <- G(z, NULL)$cpu()
+  })
+  
+  as_cimg(im)
+  
+}
+
+plot(sample_image(G, rnorm(512)))
 
 G <- Generator(128, 0, 16, 48, 3)$cuda()
 z <- torch_randn(1, 128)$cuda()

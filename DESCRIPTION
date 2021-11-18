@@ -19,7 +19,8 @@ Imports:
     purrr,
     rlang,
     zeallot,
-    memoise
+    memoise,
+    jsonlite
 Depends: 
     torch
 LinkingTo: 
