@@ -50,6 +50,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
   )
   
   if(impl == 'cuda' & x$device$type == 'cuda') {
+    return(.bias_act_cuda(x = x, b = b, dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp))
     return(.bias_act_cuda(dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp)(x, b))
   } else {
     return(.bias_act_ref(x = x, b = b, dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp))
@@ -106,7 +107,36 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
 #----------------------------------------------------------------------------
 
 # Fast CUDA implementation of `bias_act()` using custom ops.
-.bias_act_cuda <- function(dim = 1, spec = list(name = 'linear', func = function(x, ...) x, def_alpha = 0, def_gain = 1, cuda_idx = 1, ref = '', has_2nd_grad = FALSE), alpha = NULL, gain = NULL, clamp = NULL) {
+.bias_act_cuda <- function(x, b = NULL, dim = 1, spec = list(name = 'linear', func = function(x, ...) x, def_alpha = 0, def_gain = 1, cuda_idx = 1, ref = '', has_2nd_grad = FALSE), alpha = NULL, gain = NULL, clamp = NULL) {
+  # Parse arguments.
+  stopifnot(is.null(clamp) | clamp >= 0)
+  
+  .null_tensor <- torch_empty(0, device = 'cuda')
+  
+  if(is.null(alpha)) {
+    alpha <- as.double(spec$def_alpha)
+  } else {
+    alpha <- as.double(alpha)
+  }
+  if(is.null(gain)) {
+    gain <- as.double(spec$def_gain)
+  } else {
+    gain <- as.double(gain)
+  }
+  if(is.null(clamp)) {
+    clamp <-as.double(-1)
+  } else {
+    clamp <- as.double(clamp)
+  }
+  
+  yref_bool <- spec$ref == "y"
+  
+  return(cpp_bias_act_autograd(x, b, spec$cuda_idx, spec$has_2nd, yref_bool, dim, alpha, gain, clamp))
+  
+}
+
+# Fast CUDA implementation of `bias_act()` using custom ops.
+.bias_act_cuda_legacy <- function(dim = 1, spec = list(name = 'linear', func = function(x, ...) x, def_alpha = 0, def_gain = 1, cuda_idx = 1, ref = '', has_2nd_grad = FALSE), alpha = NULL, gain = NULL, clamp = NULL) {
   # Parse arguments.
   stopifnot(is.null(clamp) | clamp >= 0)
   

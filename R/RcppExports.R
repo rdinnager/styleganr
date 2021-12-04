@@ -5,6 +5,10 @@ cpp_bias_act <- function(x, b, xref, yref, dy, grad, dim, act, alpha, gain, clam
     .Call('_styleganr_cpp_bias_act', PACKAGE = 'styleganr', x, b, xref, yref, dy, grad, dim, act, alpha, gain, clamp)
 }
 
+cpp_bias_act_autograd <- function(x, b, cuda_idx, has_2nd, yref_bool, dim, alpha, gain, clamp) {
+    .Call('_styleganr_cpp_bias_act_autograd', PACKAGE = 'styleganr', x, b, cuda_idx, has_2nd, yref_bool, dim, alpha, gain, clamp)
+}
+
 cpp_upfirdn2d <- function(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain) {
     .Call('_styleganr_cpp_upfirdn2d', PACKAGE = 'styleganr', x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain)
 }

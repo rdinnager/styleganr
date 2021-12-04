@@ -12,6 +12,9 @@
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
 #include <c10/core/MemoryFormat.h>
+#include <vector>
+#include <numeric>
+#include <algorithm>
 #include "lantern_ob.h"
 #include "bias_act.h"
 #include "styleganr/styleganr.h"
@@ -98,95 +101,162 @@ static torch::Tensor bias_act(torch::Tensor x, torch::Tensor b, torch::Tensor xr
     return y;
 }
 
-class BiasActFunction : public Function<BiasActFunction> {
+class BiasActCudaGrad : public Function<BiasActCudaGrad> {
+public:
+    static torch::Tensor forward(AutogradContext *ctx, torch::Tensor dy, torch::Tensor x, torch::Tensor b, torch::Tensor y, bool has_2nd, int cuda_idx, int dim, float alpha, float gain, float clamp) {
+        
+        auto _null_tensor = torch::Tensor();
+        c10::MemoryFormat memory_format = dy.dim() > 2 && dy.stride(1) == 1 ? c10::MemoryFormat::ChannelsLast : c10::MemoryFormat::Contiguous;
+        
+        auto dx = bias_act(dy, b, x, y, _null_tensor, 1, dim, cuda_idx, alpha, gain, clamp);
+        ctx->save_for_backward(
+            {has_2nd ? dy : _null_tensor,
+            x, b, y}
+        );
+        ctx->saved_data["memory_format"] = memory_format;
+        ctx->saved_data["dim"] = dim;
+        ctx->saved_data["alpha"] = alpha;
+        ctx->saved_data["gain"] = gain;
+        ctx->saved_data["clamp"] = clamp;
+        ctx->saved_data["cuda_idx"] = cuda_idx;
+        
+        return {dx};
+    }
+    
+    static tensor_list backward(AutogradContext *ctx, tensor_list grad_outputs) {
+        
+        auto _null_tensor = torch::Tensor();
+        auto saved = ctx->get_saved_variables();
+        auto d_dx = grad_outputs[0];
+        c10::MemoryFormat memory_format = ctx->saved_data["memory_format"].toMemoryFormat();
+        d_dx = d_dx.contiguous();
+        int dim = ctx->saved_data["dim"].toInt();
+        int cuda_idx = ctx->saved_data["cuda_idx"].toInt();
+        float alpha = ctx->saved_data["alpha"].toDouble();
+        float gain = ctx->saved_data["gain"].toDouble();
+        float clamp = ctx->saved_data["clamp"].toDouble();
+        
+        auto dy = saved[0];
+        auto x = saved[1];
+        auto b = saved[2];
+        auto y = saved[3];
+        
+        auto d_dy = bias_act(dy, b, x, y, _null_tensor, 1, dim - 1L, cuda_idx, alpha, gain, clamp);
+        auto d_x = bias_act(d_dx, b, x, y, dy, 2, dim, cuda_idx, 
+                            alpha, gain, clamp);
+        
+        int ndim = d_x.dim() - 1;
+        std::vector<int64_t> dims(ndim);
+        
+        for (int i = 0; i < ndim; i++) {
+            if(i != dim) {
+                dims.push_back(i);
+            }
+        }
+        
+        auto d_b = d_x.sum(dims);
+        
+        //auto d_y = torch::Tensor();
+        
+        return {d_dy, d_x, d_b, torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor()};
+        
+    }
+};
+
+class BiasAct : public Function<BiasAct> {
 public:
     
-    static torch::Tensor forward(AutogradContext *ctx, torch::Tensor x, torch::Tensor b, int cuda_idx, bool has_2nd, MemoryFormat memory_format, bool xref, int dim, float alpha, float gain, float clamp) {
+    static torch::Tensor forward(AutogradContext *ctx, torch::Tensor x, torch::Tensor b, int cuda_idx, bool has_2nd, bool yref, int dim, float alpha, float gain, float clamp) {
         
-        _null_tensor = torch::Tensor();
+        auto _null_tensor = torch::Tensor();
+        c10::MemoryFormat memory_format = x.dim() > 2 && x.stride(1) == 1 ? c10::MemoryFormat::ChannelsLast : c10::MemoryFormat::Contiguous;
         
-        auto x = x.contiguous(memory_format = memory_format);
-        auto b = b.contiguous();
+        x = x.contiguous(memory_format = memory_format);
+        b = b.contiguous();
             
         auto y = bias_act(x, b, _null_tensor, _null_tensor, _null_tensor, 0, dim, cuda_idx, alpha, gain, clamp);
 
         // Save context
-        ctx->save_for_backward({xref && has_2nd ? x : _null_tensor,
-                                xref && has_2nd ? b : _null_tensor,
-                                !xref ? y : _null_tensor,
-                                _null_tensor,
-                                _null_tensor,
-                                _null_tensor,
-                                _null_tensor,
-                                _null_tensor,
-                                _null_tensor,
-                                _null_tensor,
-                                _null_tensor});
-        ctx->saved_data["needs_reshaping"] = needs_reshaping;
+        ctx->save_for_backward({!yref && has_2nd ? x : _null_tensor,
+                                !yref && has_2nd ? b : _null_tensor,
+                                yref ? y : _null_tensor});
+        
+        ctx->saved_data["memory_format"] = memory_format;
         ctx->saved_data["dim"] = dim;
+        ctx->saved_data["alpha"] = alpha;
+        ctx->saved_data["gain"] = gain;
+        ctx->saved_data["clamp"] = clamp;
+        ctx->saved_data["cuda_idx"] = cuda_idx;
         
-        if (needs_reshaping)
-        {
-            // Tranpose flattened dim to last dim, nth dim to 0th dim
-            output = output.transpose(0, 1);
-            
-            // Reshape to original size
-            output = output.reshape(original_size);
-            
-            // Swap batch dim and nth dim
-            output = output.transpose(0, dim);
-        }
-        
-        return output;
+        return {y};
     }
     
     static tensor_list backward(AutogradContext *ctx, tensor_list grad_outputs) {
+        
+        auto _null_tensor = torch::Tensor();
         auto saved = ctx->get_saved_variables();
-        auto output = saved[0];
-        auto grad_output = grad_outputs[0];
-        
-        bool needs_reshaping = ctx->saved_data["needs_reshaping"].toBool();
+        auto dy = grad_outputs[0];
+        c10::MemoryFormat memory_format = ctx->saved_data["memory_format"].toMemoryFormat();
+        dy = dy.contiguous(memory_format);
         int dim = ctx->saved_data["dim"].toInt();
-        auto original_size = grad_output.sizes().vec();
+        int cuda_idx = ctx->saved_data["cuda_idx"].toInt();
+        float alpha = ctx->saved_data["alpha"].toDouble();
+        float gain = ctx->saved_data["gain"].toDouble();
+        float clamp = ctx->saved_data["clamp"].toDouble();
         
-        if (needs_reshaping)
-        {
-            // transpose batch and nth dim
-            grad_output = grad_output.transpose(0, dim);
-            
-            // Flatten all dimensions except nth dim
-            grad_output = grad_output.reshape({grad_output.size(0), -1});
-            
-            // Transpose flattened dimensions to 0th dim, nth dim to last dim
-            grad_output = grad_output.transpose(0, -1);
+        auto x = saved[0];
+        auto b = saved[1];
+        auto y = saved[2];
+        
+        auto dx = bias_act(dy, b, x, y, _null_tensor, 1, dim - 1L, cuda_idx, alpha, gain, clamp);
+        
+        int ndim = dx.dim() - 1;
+        std::vector<int64_t> dims(ndim);
+        
+        for (int i = 0; i < ndim; i++) {
+            if(i != dim) {
+                dims.push_back(i);
+            }
         }
         
-        // Compute gradient
-        auto nonzeros = torch::ne(output, 0);
-        auto num_nonzeros = nonzeros.sum(-1, true);
-        auto sum = (grad_output * nonzeros).sum(-1, true) / num_nonzeros;
-        auto grad_input = nonzeros * (grad_output - sum.expand_as(grad_output));
+        auto db = dx.sum(dims);
+        return {dx, db,
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor()};
         
-        if (needs_reshaping)
-        {
-            // Tranpose flattened dim to last dim, nth dim to 0th dim
-            grad_input = grad_input.transpose(0, 1);
-            
-            // Reshape to original size
-            grad_input = grad_input.reshape(original_size);
-            
-            // Swap batch dim and nth dim
-            grad_input = grad_input.transpose(0, dim);
-        }
-        
-        auto o = torch::autograd::variable_list(2);
-        o[0] = grad_input;
-        
-        return o;
     }
 };
 
+
 //------------------------------------------------------------------------
+
+STYLEGANR_API void * c_styleganr_bias_act_autograd (void* x, void* b, int cuda_idx, bool has_2nd, bool xref, int dim, float alpha, float gain, float clamp)
+{
+    //LANTERN_FUNCTION_START
+    torch::Tensor res = BiasAct::apply(reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
+                                       reinterpret_cast<LanternObject<torch::Tensor>*>(b)->get(), 
+                                       cuda_idx, 
+                                       has_2nd, 
+                                       xref, 
+                                       dim, 
+                                       alpha, 
+                                       gain, 
+                                       clamp);
+    return (void*) new LanternObject<torch::Tensor>(res);
+    
+    //LANTERN_FUNCTION_END
+}
 
 STYLEGANR_API void * c_styleganr_bias_act (void* x, void* b, void* xref, void* yref, void* dy, int grad, int dim, int act, float alpha, float gain, float clamp)
 {

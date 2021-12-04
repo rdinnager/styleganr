@@ -32,6 +32,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_bias_act_autograd
+XPtrTorchTensor cpp_bias_act_autograd(XPtrTorchTensor x, XPtrTorchTensor b, int cuda_idx, bool has_2nd, bool yref_bool, int dim, float alpha, float gain, float clamp);
+RcppExport SEXP _styleganr_cpp_bias_act_autograd(SEXP xSEXP, SEXP bSEXP, SEXP cuda_idxSEXP, SEXP has_2ndSEXP, SEXP yref_boolSEXP, SEXP dimSEXP, SEXP alphaSEXP, SEXP gainSEXP, SEXP clampSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type b(bSEXP);
+    Rcpp::traits::input_parameter< int >::type cuda_idx(cuda_idxSEXP);
+    Rcpp::traits::input_parameter< bool >::type has_2nd(has_2ndSEXP);
+    Rcpp::traits::input_parameter< bool >::type yref_bool(yref_boolSEXP);
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< float >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< float >::type gain(gainSEXP);
+    Rcpp::traits::input_parameter< float >::type clamp(clampSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_bias_act_autograd(x, b, cuda_idx, has_2nd, yref_bool, dim, alpha, gain, clamp));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_upfirdn2d
 XPtrTorchTensor cpp_upfirdn2d(XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain);
 RcppExport SEXP _styleganr_cpp_upfirdn2d(SEXP xSEXP, SEXP fSEXP, SEXP upxSEXP, SEXP upySEXP, SEXP downxSEXP, SEXP downySEXP, SEXP padx0SEXP, SEXP padx1SEXP, SEXP pady0SEXP, SEXP pady1SEXP, SEXP flipSEXP, SEXP gainSEXP) {
@@ -103,6 +122,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_styleganr_cpp_bias_act", (DL_FUNC) &_styleganr_cpp_bias_act, 11},
+    {"_styleganr_cpp_bias_act_autograd", (DL_FUNC) &_styleganr_cpp_bias_act_autograd, 9},
     {"_styleganr_cpp_upfirdn2d", (DL_FUNC) &_styleganr_cpp_upfirdn2d, 12},
     {"_styleganr_cpp_filtered_lrelu_act", (DL_FUNC) &_styleganr_cpp_filtered_lrelu_act, 8},
     {"_styleganr_cpp_filtered_lrelu", (DL_FUNC) &_styleganr_cpp_filtered_lrelu, 18},

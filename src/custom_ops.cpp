@@ -25,6 +25,22 @@ XPtrTorchTensor cpp_bias_act (XPtrTorchTensor x, XPtrTorchTensor b, XPtrTorchTen
   );
 }
 
+// [[Rcpp::export]]
+XPtrTorchTensor cpp_bias_act_autograd (XPtrTorchTensor x, XPtrTorchTensor b, int cuda_idx, bool has_2nd, bool yref_bool, int dim, float alpha, float gain, float clamp)
+{
+  return XPtrTorchTensor(c_styleganr_bias_act_autograd(
+      x.get(), 
+      b.get(), 
+      cuda_idx, 
+      has_2nd, 
+      yref_bool,
+      dim, 
+      alpha,
+      gain, 
+      clamp)
+  );
+}
+
 
 // [[Rcpp::export]]
 XPtrTorchTensor cpp_upfirdn2d (XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)

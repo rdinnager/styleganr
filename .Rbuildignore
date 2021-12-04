@@ -6,3 +6,5 @@
 ^inst/lib$
 ^to_port$
 ^README\.Rmd$
+^.vscode$
+^models$

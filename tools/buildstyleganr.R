@@ -13,7 +13,7 @@ if (dir.exists("csrc")) {
   
   withr::with_dir("csrc/build", {
     system("cmake ..")
-    system("cmake --build . --target package --config Release --parallel 8")
+    output <- system("cmake --build . --target package --config Release --parallel 8", intern = TRUE)
     message("copying libraries ...")
     system("cmake --install .")
   })
