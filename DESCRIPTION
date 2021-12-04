@@ -20,7 +20,8 @@ Imports:
     rlang,
     zeallot,
     memoise,
-    jsonlite
+    jsonlite,
+    signal
 Depends: 
     torch
 LinkingTo: 
