@@ -2,6 +2,14 @@
 project(styleganr)
 cmake_minimum_required(VERSION 3.16)
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
+message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+
 # We find a LibTorch installation trough the torch package.
 # This is the best approach if we want to make sure we are
 # targetting the same LibTorch version as used by torch.

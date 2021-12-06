@@ -35,7 +35,7 @@
 bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = NULL, clamp = NULL, impl = if(cuda_is_available() & x$device$type == 'cuda') 'cuda' else 'ref') {
   
   stopifnot(is_torch_tensor(x))
-  stopifnot(impl %in% c('ref', 'cuda'))
+  stopifnot(impl %in% c('ref', 'cuda', 'cuda_legacy'))
   
   activation_func <- switch(act,
                             linear    = list(name = 'linear',   func = function(x, ...)        x,                        def_alpha = 0,   def_gain = 1,       cuda_idx = 1, ref = '',  has_2nd_grad = FALSE),
@@ -49,9 +49,12 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
                             swish     = list(name = 'swish',    func = function(x, ...)        torch_sigmoid(x) * x,     def_alpha = 0,   def_gain = sqrt(2), cuda_idx = 9, ref = 'x', has_2nd_grad = TRUE)
   )
   
-  if(impl == 'cuda' & x$device$type == 'cuda') {
-    return(.bias_act_cuda(x = x, b = b, dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp))
-    return(.bias_act_cuda(dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp)(x, b))
+  if(x$device$type == 'cuda') {
+    if(impl == 'cuda') {
+      return(.bias_act_cuda(x = x, b = b, dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp))
+    } else {
+      return(.bias_act_cuda_legacy(dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp)(x, b))
+    }
   } else {
     return(.bias_act_ref(x = x, b = b, dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp))
   }
@@ -129,9 +132,21 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
     clamp <- as.double(clamp)
   }
   
+  if(!is.null(b)) {
+    b <- b$contiguous()
+  } else {
+    b <- .null_tensor
+  }
+  
   yref_bool <- spec$ref == "y"
   
-  return(cpp_bias_act_autograd(x, b, spec$cuda_idx, spec$has_2nd, yref_bool, dim, alpha, gain, clamp))
+  y <- x
+  
+  if(spec$name != 'linear' | gain != 1 | clamp >= 0 | !torch_equal(b, .null_tensor)) {
+    y <- cpp_bias_act_autograd(x, b, spec$cuda_idx, spec$has_2nd, yref_bool, dim - 1L, alpha, gain, clamp)
+  }
+  
+  return(y)
   
 }
 

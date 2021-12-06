@@ -12,8 +12,13 @@ if (dir.exists("csrc")) {
     fs::dir_create("csrc/build")
   
   withr::with_dir("csrc/build", {
-    system("cmake ..")
+    if(Sys.getenv("STYLEGANR_DEBUG") == "TRUE") {
+      system("cmake -DCMAKE_BUILD_TYPE=Debug ..")
+    } else {
+      system("cmake -DCMAKE_BUILD_TYPE=Release ..")
+    }
     output <- system("cmake --build . --target package --config Release --parallel 8", intern = TRUE)
+    
     message("copying libraries ...")
     system("cmake --install .")
   })
