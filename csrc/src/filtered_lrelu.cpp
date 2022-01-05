@@ -11,15 +11,17 @@
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
-#include "lantern_ob.h"
 #include "styleganr/styleganr.h"
 #include "filtered_lrelu.h"
 #include <torch/torch.h>
+#define LANTERN_TYPES_IMPL // should only be defined in a single file
+#include <lantern/types.h>
+#include "types.h"
 //#include "../../utils.hpp"
 
 //------------------------------------------------------------------------
 
-static std::tuple<torch::Tensor, torch::Tensor, int> filtered_lrelu(
+static alias::TensorTensorInt filtered_lrelu(
     torch::Tensor x, torch::Tensor fu, torch::Tensor fd, torch::Tensor b, torch::Tensor si,
     int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns)
 {
@@ -301,8 +303,8 @@ STYLEGANR_API void * c_styleganr_filtered_lrelu_act (void* x, void* si, int sx, 
 {
     //LANTERN_FUNCTION_START
     torch::Tensor result = filtered_lrelu_act(
-        reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(si)->get(), 
+        from_raw::Tensor(x), 
+        from_raw::Tensor(si), 
         sx, 
         sy, 
         gain, 
@@ -310,19 +312,19 @@ STYLEGANR_API void * c_styleganr_filtered_lrelu_act (void* x, void* si, int sx, 
         clamp, 
         writeSigns
     );
-    return (void*) new LanternObject<torch::Tensor>(result);
+    return make_raw::Tensor(result);
     //LANTERN_FUNCTION_END
 }
 
 STYLEGANR_API void * c_styleganr_filtered_lrelu (void* x, void* fu, void* fd, void* b, void* si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns)
 {
     //LANTERN_FUNCTION_START
-    std::tuple<torch::Tensor, torch::Tensor, int> result = filtered_lrelu(
-        reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(fu)->get(),
-        reinterpret_cast<LanternObject<torch::Tensor>*>(fd)->get(),
-        reinterpret_cast<LanternObject<torch::Tensor>*>(b)->get(),
-        reinterpret_cast<LanternObject<torch::Tensor>*>(si)->get(),
+    auto result = filtered_lrelu(
+        from_raw::Tensor(x), 
+        from_raw::Tensor(fu),
+        from_raw::Tensor(fd),
+        from_raw::Tensor(b),
+        from_raw::Tensor(si),
         up, 
         down, 
         px0, 
@@ -338,6 +340,6 @@ STYLEGANR_API void * c_styleganr_filtered_lrelu (void* x, void* fu, void* fd, vo
         writeSigns
     );
 
-    return (void*) new LanternObject<std::tuple<torch::Tensor, torch::Tensor, int>>(result);
+    return make_raw::TensorTensorInt(result);
     //LANTERN_FUNCTION_END
 }
