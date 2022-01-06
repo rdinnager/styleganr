@@ -87,6 +87,7 @@ add_library(styleganr::library ALIAS styleganr)
 # Tell cmake what are the include files.
 target_include_directories(styleganr PUBLIC
     ${PROJECT_SOURCE_DIR}/include
+    ${TORCH_HOME}/include
 )
 
 # Tell cmake the libraries we want to link to.

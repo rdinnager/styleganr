@@ -14,7 +14,6 @@
 #include "styleganr/styleganr.h"
 #include "filtered_lrelu.h"
 #include <torch/torch.h>
-#define LANTERN_TYPES_IMPL // should only be defined in a single file
 #include <lantern/types.h>
 #include "types.h"
 //#include "../../utils.hpp"

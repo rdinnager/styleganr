@@ -11,10 +11,10 @@
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
-#include "lantern_ob.h"
 #include "bias_act.h"
 #include "styleganr/styleganr.h"
 #include <torch/torch.h>
+#include <lantern/types.h>
 //#include "../../utils.hpp"
 
 //------------------------------------------------------------------------
