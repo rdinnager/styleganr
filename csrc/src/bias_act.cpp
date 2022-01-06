@@ -101,11 +101,11 @@ STYLEGANR_API void * c_styleganr_bias_act (void* x, void* b, void* xref, void* y
 {
     //LANTERN_FUNCTION_START
     torch::Tensor result = bias_act(
-        reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(b)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(xref)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(yref)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(dy)->get(), 
+        from_raw::Tensor(x), 
+        from_raw::Tensor(b), 
+        from_raw::Tensor(xref), 
+        from_raw::Tensor(yref), 
+        from_raw::Tensor(dy), 
         grad, 
         dim, 
         act, 
@@ -113,6 +113,6 @@ STYLEGANR_API void * c_styleganr_bias_act (void* x, void* b, void* xref, void* y
         gain, 
         clamp
     );
-    return (void*) new LanternObject<torch::Tensor>(result);
+    return make_raw::Tensor(result);
     //LANTERN_FUNCTION_END
 }

@@ -37,3 +37,8 @@ STYLEGANR_API int TensorTensorInt_get_2 (void* self)
   auto self_ = from_raw::TensorTensorInt(self);
   return std::get<2>(self_);
 }
+
+STYLEGANR_API void TensorTensorInt_delete (void* self)
+{
+  delete reinterpret_cast<alias::TensorTensorInt*>(self);
+}

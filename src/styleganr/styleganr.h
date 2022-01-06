@@ -16,6 +16,7 @@ STYLEGANR_API void* c_styleganr_filtered_lrelu (void* x, void* fu, void* fd, voi
 STYLEGANR_API void* TensorTensorInt_get_0 (void* self);
 STYLEGANR_API void* TensorTensorInt_get_1 (void* self);
 STYLEGANR_API int TensorTensorInt_get_2 (void* self);
+STYLEGANR_API void TensorTensorInt_delete (void* self);
 
 
 

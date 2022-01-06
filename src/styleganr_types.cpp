@@ -14,6 +14,6 @@ namespace styleganr {
   }
   TensorTensorInt::TensorTensorInt (void* x)
   {
-    x_ = std::make_shared<void*>(x);
+    x_ = std::shared_ptr<void>(x, TensorTensorInt_delete);
   }
 }

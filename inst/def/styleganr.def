@@ -4,3 +4,7 @@ EXPORTS
   c_styleganr_upfirdn2d
   c_styleganr_filtered_lrelu_act
   c_styleganr_filtered_lrelu
+  TensorTensorInt_get_0
+  TensorTensorInt_get_1
+  TensorTensorInt_get_2 
+  TensorTensorInt_delete
