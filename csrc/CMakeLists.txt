@@ -58,11 +58,13 @@ if(DEFINED ENV{CUDA})
                     src/filtered_lrelu.cu
                     src/filtered_lrelu_ns.cu
                     src/filtered_lrelu_rd.cu
-                    src/filtered_lrelu_wr.cu)
+                    src/filtered_lrelu_wr.cu
+                    src/types.cpp)
 else()
   set(STYLEGANR_SRC src/bias_act_cpu.cpp
                     src/upfirdn2d_cpu.cpp
-                    src/filtered_lrelu_cpu.cpp)
+                    src/filtered_lrelu_cpu.cpp
+                    src/types.cpp)
 endif()
 
 # On Windows we use module definition files to declare what are
@@ -85,11 +87,12 @@ add_library(styleganr::library ALIAS styleganr)
 # Tell cmake what are the include files.
 target_include_directories(styleganr PUBLIC
     ${PROJECT_SOURCE_DIR}/include
+    ${TORCH_HOME}/include
 )
 
 # Tell cmake the libraries we want to link to.
 target_link_libraries(styleganr "${TORCH_LIBRARIES}")
-set_property(TARGET styleganr PROPERTY CXX_STANDARD 14)
+set_property(TARGET styleganr PROPERTY CXX_STANDARD 17)
 
 # Syncronize the headers and the def file with the Rcpp
 # interface.

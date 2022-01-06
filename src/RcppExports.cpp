@@ -12,16 +12,16 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // cpp_bias_act
-XPtrTorchTensor cpp_bias_act(XPtrTorchTensor x, XPtrTorchTensor b, XPtrTorchTensor xref, XPtrTorchTensor yref, XPtrTorchTensor dy, int grad, int dim, int act, float alpha, float gain, float clamp);
+torch::Tensor cpp_bias_act(torch::Tensor x, torch::Tensor b, torch::Tensor xref, torch::Tensor yref, torch::Tensor dy, int grad, int dim, int act, float alpha, float gain, float clamp);
 RcppExport SEXP _styleganr_cpp_bias_act(SEXP xSEXP, SEXP bSEXP, SEXP xrefSEXP, SEXP yrefSEXP, SEXP dySEXP, SEXP gradSEXP, SEXP dimSEXP, SEXP actSEXP, SEXP alphaSEXP, SEXP gainSEXP, SEXP clampSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type b(bSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type xref(xrefSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type yref(yrefSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type dy(dySEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type b(bSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type xref(xrefSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type yref(yrefSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type dy(dySEXP);
     Rcpp::traits::input_parameter< int >::type grad(gradSEXP);
     Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
     Rcpp::traits::input_parameter< int >::type act(actSEXP);
@@ -33,13 +33,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_upfirdn2d
-XPtrTorchTensor cpp_upfirdn2d(XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain);
+torch::Tensor cpp_upfirdn2d(torch::Tensor x, torch::Tensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain);
 RcppExport SEXP _styleganr_cpp_upfirdn2d(SEXP xSEXP, SEXP fSEXP, SEXP upxSEXP, SEXP upySEXP, SEXP downxSEXP, SEXP downySEXP, SEXP padx0SEXP, SEXP padx1SEXP, SEXP pady0SEXP, SEXP pady1SEXP, SEXP flipSEXP, SEXP gainSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type f(fSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type f(fSEXP);
     Rcpp::traits::input_parameter< int >::type upx(upxSEXP);
     Rcpp::traits::input_parameter< int >::type upy(upySEXP);
     Rcpp::traits::input_parameter< int >::type downx(downxSEXP);
@@ -55,13 +55,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_filtered_lrelu_act
-XPtrTorchTensor cpp_filtered_lrelu_act(XPtrTorchTensor x, XPtrTorchTensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns);
+torch::Tensor cpp_filtered_lrelu_act(torch::Tensor x, torch::Tensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns);
 RcppExport SEXP _styleganr_cpp_filtered_lrelu_act(SEXP xSEXP, SEXP siSEXP, SEXP sxSEXP, SEXP sySEXP, SEXP gainSEXP, SEXP slopeSEXP, SEXP clampSEXP, SEXP writeSignsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type si(siSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type si(siSEXP);
     Rcpp::traits::input_parameter< int >::type sx(sxSEXP);
     Rcpp::traits::input_parameter< int >::type sy(sySEXP);
     Rcpp::traits::input_parameter< float >::type gain(gainSEXP);
@@ -73,16 +73,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_filtered_lrelu
-XPtrTorchTuple cpp_filtered_lrelu(XPtrTorchTensor x, XPtrTorchTensor fu, XPtrTorchTensor fd, XPtrTorchTensor b, XPtrTorchTensor si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns);
+styleganr::TensorTensorInt cpp_filtered_lrelu(torch::Tensor x, torch::Tensor fu, torch::Tensor fd, torch::Tensor b, torch::Tensor si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns);
 RcppExport SEXP _styleganr_cpp_filtered_lrelu(SEXP xSEXP, SEXP fuSEXP, SEXP fdSEXP, SEXP bSEXP, SEXP siSEXP, SEXP upSEXP, SEXP downSEXP, SEXP px0SEXP, SEXP px1SEXP, SEXP py0SEXP, SEXP py1SEXP, SEXP sxSEXP, SEXP sySEXP, SEXP gainSEXP, SEXP slopeSEXP, SEXP clampSEXP, SEXP flip_filtersSEXP, SEXP writeSignsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type fu(fuSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type fd(fdSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type b(bSEXP);
-    Rcpp::traits::input_parameter< XPtrTorchTensor >::type si(siSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type fu(fuSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type fd(fdSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type b(bSEXP);
+    Rcpp::traits::input_parameter< torch::Tensor >::type si(siSEXP);
     Rcpp::traits::input_parameter< int >::type up(upSEXP);
     Rcpp::traits::input_parameter< int >::type down(downSEXP);
     Rcpp::traits::input_parameter< int >::type px0(px0SEXP);

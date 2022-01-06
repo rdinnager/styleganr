@@ -5,12 +5,13 @@
 #define TORCH_IMPL
 #define IMPORT_TORCH
 #include <torch.h>
+#include "styleganr_types.h"
 
 
 // [[Rcpp::export]]
-XPtrTorchTensor cpp_bias_act (XPtrTorchTensor x, XPtrTorchTensor b, XPtrTorchTensor xref, XPtrTorchTensor yref, XPtrTorchTensor dy, int grad, int dim, int act, float alpha, float gain, float clamp)
+torch::Tensor cpp_bias_act (torch::Tensor x, torch::Tensor b, torch::Tensor xref, torch::Tensor yref, torch::Tensor dy, int grad, int dim, int act, float alpha, float gain, float clamp)
 {
-  return XPtrTorchTensor(c_styleganr_bias_act(
+  return torch::Tensor(c_styleganr_bias_act(
       x.get(), 
       b.get(), 
       xref.get(), 
@@ -27,9 +28,9 @@ XPtrTorchTensor cpp_bias_act (XPtrTorchTensor x, XPtrTorchTensor b, XPtrTorchTen
 
 
 // [[Rcpp::export]]
-XPtrTorchTensor cpp_upfirdn2d (XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
+torch::Tensor cpp_upfirdn2d (torch::Tensor x, torch::Tensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
 {
-  return XPtrTorchTensor(c_styleganr_upfirdn2d(
+  return torch::Tensor(c_styleganr_upfirdn2d(
       x.get(), 
       f.get(), 
       upx, 
@@ -46,9 +47,9 @@ XPtrTorchTensor cpp_upfirdn2d (XPtrTorchTensor x, XPtrTorchTensor f, int upx, in
 }
 
 // [[Rcpp::export]]
-XPtrTorchTensor cpp_filtered_lrelu_act (XPtrTorchTensor x, XPtrTorchTensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns)
+torch::Tensor cpp_filtered_lrelu_act (torch::Tensor x, torch::Tensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns)
 {
-  return XPtrTorchTensor(c_styleganr_filtered_lrelu_act(
+  return torch::Tensor(c_styleganr_filtered_lrelu_act(
       x.get(), 
       si.get(), 
       sx, 
@@ -61,9 +62,9 @@ XPtrTorchTensor cpp_filtered_lrelu_act (XPtrTorchTensor x, XPtrTorchTensor si, i
 }
 
 // [[Rcpp::export]]
-XPtrTorchTuple cpp_filtered_lrelu (XPtrTorchTensor x, XPtrTorchTensor fu, XPtrTorchTensor fd, XPtrTorchTensor b, XPtrTorchTensor si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns)
+styleganr::TensorTensorInt cpp_filtered_lrelu (torch::Tensor x, torch::Tensor fu, torch::Tensor fd, torch::Tensor b, torch::Tensor si, int up, int down, int px0, int px1, int py0, int py1, int sx, int sy, float gain, float slope, float clamp, bool flip_filters, bool writeSigns)
 {
-  return XPtrTorchTuple(c_styleganr_filtered_lrelu(
+  return styleganr::TensorTensorInt(c_styleganr_filtered_lrelu(
       x.get(), 
       fu.get(), 
       fd.get(), 

@@ -11,9 +11,9 @@
 //#include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
-#include "lantern_ob.h"
 #include "styleganr/styleganr.h"
 #include "upfirdn2d.h"
+#include <lantern/types.h>
 #include <torch/torch.h>
 //#include "../../utils.hpp"
 
@@ -109,8 +109,8 @@ STYLEGANR_API void * c_styleganr_upfirdn2d (void* x, void* f, int upx, int upy, 
 {
     //LANTERN_FUNCTION_START
     torch::Tensor result = upfirdn2d(
-        reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
-        reinterpret_cast<LanternObject<torch::Tensor>*>(f)->get(), 
+        from_raw::Tensor(x), 
+        from_raw::Tensor(f), 
         upx, 
         upy, 
         downx, 
@@ -122,6 +122,6 @@ STYLEGANR_API void * c_styleganr_upfirdn2d (void* x, void* f, int upx, int upy, 
         flip, 
         gain
     );
-    return (void*) new LanternObject<torch::Tensor>(result);
+    return make_raw::Tensor(result);
     //LANTERN_FUNCTION_END
 }
