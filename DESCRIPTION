@@ -28,4 +28,4 @@ Depends:
 LinkingTo: 
     Rcpp, torch
 Remotes:
-    mlverse/torch@feature/lantern-types
+    mlverse/torch@feature/install-headers
