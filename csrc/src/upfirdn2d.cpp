@@ -17,6 +17,8 @@
 #include <torch/torch.h>
 //#include "../../utils.hpp"
 
+using namespace torch::autograd;
+
 //------------------------------------------------------------------------
 
 static torch::Tensor upfirdn2d(torch::Tensor x, torch::Tensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
@@ -101,9 +103,115 @@ static torch::Tensor upfirdn2d(torch::Tensor x, torch::Tensor f, int upx, int up
     void* args[] = {&p};
     AT_CUDA_CHECK(cudaLaunchKernel(spec.kernel, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream()));
     return y;
+};
+
+static torch::Tensor upfirdn2d_forward(torch::Tensor x, torch::Tensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain) 
+{
+    auto y = x;
+    if(f.dim() == 2) {
+        y = upfirdn2d(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain);
+    } else {
+        y = upfirdn2d(x, f.unsqueeze(0), upx, 1, downx, 1, padx0, padx1, 0, 0, flip, 1.0);
+        y = upfirdn2d(y, f.unsqueeze(1), 1, upy, 1, downy, 0, 0, pady0, pady1, flip, gain);   
+    }
+    return y;
 }
 
+class Upfirdn2d : public Function<Upfirdn2d> {
+public:
+    
+    static torch::Tensor forward(AutogradContext *ctx, torch::Tensor x, torch::Tensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip_filter, float gain, int fw, int fh) {
+        
+        auto y = upfirdn2d_forward(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip_filter, gain);
+        
+        ctx->save_for_backward({f});
+        
+        ctx->saved_data["ih"] = x.size(0);
+        ctx->saved_data["iw"] = x.size(1);
+        ctx->saved_data["padx0"] = padx0;
+        ctx->saved_data["pady0"] = pady0;
+        ctx->saved_data["upx"] = upx;
+        ctx->saved_data["upy"] = upy;
+        ctx->saved_data["downx"] = downx;
+        ctx->saved_data["downy"] = downy;
+        ctx->saved_data["flip_filter"] = flip_filter;
+        ctx->saved_data["gain"] = gain;
+        ctx->saved_data["fw"] = fw;
+        ctx->saved_data["fh"] = fh;
+        
+        return {y};
+        
+    }
+    
+    static tensor_list backward(AutogradContext *ctx, tensor_list grad_outputs) {
+        
+        auto saved = ctx->get_saved_variables();
+        auto dy = grad_outputs[0];
+        
+        auto f = saved[0];
+        auto oh = dy.size(0);
+        auto ow = dy.size(1);
+        
+        auto ih = ctx->saved_data["ih"].toInt();
+        auto iw = ctx->saved_data["iw"].toInt();
+        auto padx0 = ctx->saved_data["padx0"].toInt();
+        auto pady0 = ctx->saved_data["pady0"].toInt();
+        auto upx = ctx->saved_data["upx"].toInt();
+        auto upy = ctx->saved_data["upy"].toInt();
+        auto downx = ctx->saved_data["downx"].toInt();
+        auto downy = ctx->saved_data["downy"].toInt();
+        auto flip_filter = ctx->saved_data["flip_filter"].toBool();
+        auto gain = ctx->saved_data["upy"].toDouble();
+        auto fw = ctx->saved_data["fw"].toInt();
+        auto fh = ctx->saved_data["fh"].toInt();
+        
+        auto p0 = fw - padx0 - 1;
+        auto p1 = iw * upx - ow * downx + padx0 - upx + 1;
+        auto p2 = fh - pady0 - 1;
+        auto p3 = ih * upy - oh * downy + pady0 - upy + 1;
+        
+        auto dx = upfirdn2d_forward(dy, f, downx, downy, upx, upy, p0, p1, p2, p3, !flip_filter, gain);
+        
+        return {dx, torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor(),
+                torch::Tensor()};
+    }
+};
+
+
 //------------------------------------------------------------------------
+
+STYLEGANR_API void * c_styleganr_upfirdn2d_autograd (void* x, void* f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip_filter, float gain, int fw, int fh)
+{
+    //LANTERN_FUNCTION_START
+    torch::Tensor res = Upfirdn2d::apply(reinterpret_cast<LanternObject<torch::Tensor>*>(x)->get(), 
+                                         reinterpret_cast<LanternObject<torch::Tensor>*>(f)->get(), 
+                                         upx, 
+                                         upy, 
+                                         downx,
+                                         downy,
+                                         padx0,
+                                         padx1,
+                                         pady0,
+                                         pady1,
+                                         flip_filter, 
+                                         gain, 
+                                         fw,
+                                         fh);
+    return (void*) new LanternObject<torch::Tensor>(res);
+    
+    //LANTERN_FUNCTION_END
+}
 
 STYLEGANR_API void * c_styleganr_upfirdn2d (void* x, void* f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
 {

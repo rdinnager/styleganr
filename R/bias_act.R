@@ -50,7 +50,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
   )
   
   if(x$device$type == 'cuda') {
-    if(impl == 'cuda') {
+    if(impl == 'cuda' && Sys.getenv("STYLEGANR_FORCE_LEGACY") != "TRUE") {
       return(.bias_act_cuda(x = x, b = b, dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp))
     } else {
       return(.bias_act_cuda_legacy(dim = dim, spec = activation_func, alpha = alpha, gain = gain, clamp = clamp)(x, b))

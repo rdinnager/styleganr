@@ -41,7 +41,7 @@
     assertthat::assert_that(is_torch_tensor(f) & f$ndim %in% c(1, 2))
     fw <- f$shape[length(f$shape)]
     fh <- f$shape[1]
-    fw <- as.interger(fw)
+    fw <- as.integer(fw)
     fh <- as.integer(fh)
     assert_shape(f, c(fh, fw)[1:f$ndim])
     assertthat::assert_that(fw >= 1 & fh >= 1)
@@ -137,9 +137,13 @@ setup_filter <- function(f, device = torch_device('cpu'), normalize = TRUE, flip
 upfirdn2d <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, gain = 1, impl = if(cuda_is_available()) 'cuda' else 'ref') {
     
     assertthat::assert_that(is_torch_tensor(x))
-    assertthat::assert_that(impl %in% c('ref', 'cuda'))
-    if(impl == 'cuda' & x$device$type == 'cuda') {
-        return(.upfirdn2d_cuda(up = up, down = down, padding = padding, flip_filter = flip_filter, gain = gain)(x, f))
+    assertthat::assert_that(impl %in% c('ref', 'cuda', 'cuda_legacy'))
+    if(x$device$type == 'cuda') {
+        if(impl == 'cuda' && Sys.getenv("STYLEGANR_FORCE_LEGACY") != "TRUE") {
+            return(.upfirdn2d_cuda(x, f, up, down, padding, flip_filter, gain))   
+        } else {
+            return(.upfirdn2d_cuda_legacy(up = up, down = down, padding = padding, flip_filter = flip_filter, gain = gain)(x, f))
+        }
     }
     return(.upfirdn2d_ref(x, f, up = up, down = down, padding = padding, flip_filter = flip_filter, gain = gain))
 }
@@ -205,7 +209,46 @@ upfirdn2d <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, 
 #----------------------------------------------------------------------------
 
 # Fast CUDA implementation of `upfirdn2d()` using custom ops.
-.upfirdn2d_cuda <- function(up = 1, down = 1, padding = 0, flip_filter = FALSE, gain = 1) {
+.upfirdn2d_cuda <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, gain = 1) {
+    # Parse arguments.
+    upx <- upy <- downx <- downy <- padx0 <- padx1 <- pady0 <- pady1 <- fw <- fh <- NULL
+    c(upx, upy) %<-% .parse_scaling(up)
+    c(downx, downy) %<-% .parse_scaling(down)
+    c(padx0, padx1, pady0, pady1) %<-% .parse_padding(padding)
+    
+    assertthat::assert_that(is_torch_tensor(x), x$ndim == 4)
+    
+    if(is.null(f)) {
+        f <- torch_ones(1, 1, dtype = torch_float32(), device = x$device())
+    }
+    if(f$ndim == 1 & f$shape[1] == 1) {
+        f <- f$square()$unsqueeze(1) # Convert separable-1 into full-1x1.
+    }
+    assertthat::assert_that(is_torch_tensor(f), f$ndim %in% c(1, 2))
+    
+    c(fw, fh) %<-% .get_filter_size(f)
+    
+    y <- x
+    y <- cpp_upfirdn2d_autograd(y, 
+                                f, 
+                                upx, 
+                                upy, 
+                                downx,
+                                downy,
+                                padx0,
+                                padx1,
+                                pady0,
+                                pady1,
+                                flip_filter, 
+                                gain, 
+                                fw,
+                                fh)
+    
+    return(y)
+}
+
+# Fast CUDA implementation of `upfirdn2d()` using custom ops.
+.upfirdn2d_cuda_legacy <- function(up = 1, down = 1, padding = 0, flip_filter = FALSE, gain = 1) {
     # Parse arguments.
     upx <- upy <- downx <- downy <- padx0 <- padx1 <- pady0 <- pady1 <- NULL
     c(upx, upy) %<-% .parse_scaling(up)

@@ -1,5 +1,7 @@
-library(styleganr)
+#library(styleganr)
 Sys.setenv(NO_CUSTOM_OP = 1)
+Sys.setenv(STYLEGANR_FORCE_LEGACY = "TRUE")
+#Sys.unsetenv("STYLEGANR_FORCE_LEGACY")
 
 G <- sgr_get_model(device = "cuda")
 

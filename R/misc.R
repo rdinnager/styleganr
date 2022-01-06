@@ -8,7 +8,8 @@ assert_shape <- function(tensor, ref_shape) {
   shape_match <- shape_match | is.na(ref_shape)
 
   if(any(!shape_match)) {
-    stop(glue::glue("Shapes do not match: Wrong size for dimensions {which(!shape_match)}"))
+    stop(glue::glue("Shapes do not match: Wrong size for dimensions {paste(which(!shape_match), collapse = ', ')}.
+                    Expected {paste(tensor$shape, collapse = ', ')}, got {paste(ref_shape, collapse = ', ')}"))
   }
 
   return(invisible(TRUE))

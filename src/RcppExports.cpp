@@ -73,6 +73,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_upfirdn2d_autograd
+XPtrTorchTensor cpp_upfirdn2d_autograd(XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip_filter, float gain, int fw, int fh);
+RcppExport SEXP _styleganr_cpp_upfirdn2d_autograd(SEXP xSEXP, SEXP fSEXP, SEXP upxSEXP, SEXP upySEXP, SEXP downxSEXP, SEXP downySEXP, SEXP padx0SEXP, SEXP padx1SEXP, SEXP pady0SEXP, SEXP pady1SEXP, SEXP flip_filterSEXP, SEXP gainSEXP, SEXP fwSEXP, SEXP fhSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type x(xSEXP);
+    Rcpp::traits::input_parameter< XPtrTorchTensor >::type f(fSEXP);
+    Rcpp::traits::input_parameter< int >::type upx(upxSEXP);
+    Rcpp::traits::input_parameter< int >::type upy(upySEXP);
+    Rcpp::traits::input_parameter< int >::type downx(downxSEXP);
+    Rcpp::traits::input_parameter< int >::type downy(downySEXP);
+    Rcpp::traits::input_parameter< int >::type padx0(padx0SEXP);
+    Rcpp::traits::input_parameter< int >::type padx1(padx1SEXP);
+    Rcpp::traits::input_parameter< int >::type pady0(pady0SEXP);
+    Rcpp::traits::input_parameter< int >::type pady1(pady1SEXP);
+    Rcpp::traits::input_parameter< bool >::type flip_filter(flip_filterSEXP);
+    Rcpp::traits::input_parameter< float >::type gain(gainSEXP);
+    Rcpp::traits::input_parameter< int >::type fw(fwSEXP);
+    Rcpp::traits::input_parameter< int >::type fh(fhSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_upfirdn2d_autograd(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip_filter, gain, fw, fh));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_filtered_lrelu_act
 XPtrTorchTensor cpp_filtered_lrelu_act(XPtrTorchTensor x, XPtrTorchTensor si, int sx, int sy, float gain, float slope, float clamp, bool writeSigns);
 RcppExport SEXP _styleganr_cpp_filtered_lrelu_act(SEXP xSEXP, SEXP siSEXP, SEXP sxSEXP, SEXP sySEXP, SEXP gainSEXP, SEXP slopeSEXP, SEXP clampSEXP, SEXP writeSignsSEXP) {
@@ -124,6 +148,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_styleganr_cpp_bias_act", (DL_FUNC) &_styleganr_cpp_bias_act, 11},
     {"_styleganr_cpp_bias_act_autograd", (DL_FUNC) &_styleganr_cpp_bias_act_autograd, 9},
     {"_styleganr_cpp_upfirdn2d", (DL_FUNC) &_styleganr_cpp_upfirdn2d, 12},
+    {"_styleganr_cpp_upfirdn2d_autograd", (DL_FUNC) &_styleganr_cpp_upfirdn2d_autograd, 14},
     {"_styleganr_cpp_filtered_lrelu_act", (DL_FUNC) &_styleganr_cpp_filtered_lrelu_act, 8},
     {"_styleganr_cpp_filtered_lrelu", (DL_FUNC) &_styleganr_cpp_filtered_lrelu, 18},
     {NULL, NULL, 0}

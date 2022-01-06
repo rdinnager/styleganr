@@ -13,6 +13,10 @@ cpp_upfirdn2d <- function(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pad
     .Call('_styleganr_cpp_upfirdn2d', PACKAGE = 'styleganr', x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip, gain)
 }
 
+cpp_upfirdn2d_autograd <- function(x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip_filter, gain, fw, fh) {
+    .Call('_styleganr_cpp_upfirdn2d_autograd', PACKAGE = 'styleganr', x, f, upx, upy, downx, downy, padx0, padx1, pady0, pady1, flip_filter, gain, fw, fh)
+}
+
 cpp_filtered_lrelu_act <- function(x, si, sx, sy, gain, slope, clamp, writeSigns) {
     .Call('_styleganr_cpp_filtered_lrelu_act', PACKAGE = 'styleganr', x, si, sx, sy, gain, slope, clamp, writeSigns)
 }

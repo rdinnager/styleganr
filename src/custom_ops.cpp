@@ -41,7 +41,6 @@ XPtrTorchTensor cpp_bias_act_autograd (XPtrTorchTensor x, XPtrTorchTensor b, int
   );
 }
 
-
 // [[Rcpp::export]]
 XPtrTorchTensor cpp_upfirdn2d (XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip, float gain)
 {
@@ -58,6 +57,27 @@ XPtrTorchTensor cpp_upfirdn2d (XPtrTorchTensor x, XPtrTorchTensor f, int upx, in
       pady1, 
       flip, 
       gain)
+  );
+}
+
+// [[Rcpp::export]]
+XPtrTorchTensor cpp_upfirdn2d_autograd (XPtrTorchTensor x, XPtrTorchTensor f, int upx, int upy, int downx, int downy, int padx0, int padx1, int pady0, int pady1, bool flip_filter, float gain, int fw, int fh)
+{
+  return XPtrTorchTensor(c_styleganr_upfirdn2d_autograd(
+      x.get(), 
+      f.get(), 
+      upx, 
+      upy, 
+      downx,
+      downy,
+      padx0,
+      padx1,
+      pady0,
+      pady1,
+      flip_filter, 
+      gain, 
+      fw,
+      fh)
   );
 }
 

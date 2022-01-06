@@ -3,5 +3,6 @@ EXPORTS
   c_styleganr_bias_act
   c_styleganr_bias_act_autograd
   c_styleganr_upfirdn2d
+  c_styleganr_upfirdn2d_autograd
   c_styleganr_filtered_lrelu_act
   c_styleganr_filtered_lrelu
