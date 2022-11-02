@@ -22,25 +22,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: macOS-latest 
-            cuda: 0
-          - os: windows-2019 
-            cuda: 0
-          - os: windows-2019 
-            cuda: "11.3",
-            cuda_patch: "1",
-            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-windows-x64-v8.2.1.32.zip"
-          - os: ubuntu-20.04 
-            cuda: 0
-          - os: ubuntu-20.04
-            cuda: "11.3"
-            cuda_patch: "1",
-            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-linux-x64-v8.2.1.32.tgz"
-          - os: ubuntu-20.04
-            cuda: "11.6"
-            cuda_patch: "1",
-            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-linux-x86_64-8.6.0.163_cuda11-archive.tgz"
+        config:
+          - {
+              os: macOS-latest,
+              cuda: 0,
+            }
+          - {
+              os: windows-2019,
+              cuda: 0,
+            }
+          - {
+              os: windows-2019,
+              cuda: "11.3",
+              cuda_patch: "1",
+              cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-windows-x64-v8.2.1.32.zip",
+            }
+          - {
+              os: ubuntu-20.04,
+              cuda: 0,
+            }
+          - {
+              os: ubuntu-20.04,
+              cuda: "11.3",
+              cuda_patch: "1",
+              cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-linux-x64-v8.2.1.32.tgz",
+            }
+          - {
+              os: ubuntu-20.04,
+              cuda: "11.6",
+              cuda_patch: "1",
+              cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-linux-x86_64-8.6.0.163_cuda11-archive.tgz",
+            }
 
     env:
       TORCH_INSTALL: 1
