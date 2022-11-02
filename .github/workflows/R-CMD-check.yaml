@@ -26,20 +26,24 @@ jobs:
           - {
               os: macOS-latest,
               cuda: 0,
+              cmakevars: ,
             }
           - {
               os: windows-2019,
               cuda: 0,
+              cmakevars: ,
             }
           - {
               os: windows-2019,
               cuda: "11.3",
               cuda_patch: "1",
+              cmakevars: '-DCUDA_TOOLKIT_ROOT_DIR="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.3"',
               cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-windows-x64-v8.2.1.32.zip",
             }
           - {
               os: ubuntu-20.04,
               cuda: 0,
+              cmakevars: ,
             }
           - {
               os: ubuntu-20.04,
@@ -51,11 +55,13 @@ jobs:
               os: ubuntu-20.04,
               cuda: "11.6",
               cuda_patch: "1",
+              cmakevars: ,
               cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-linux-x86_64-8.6.0.163_cuda11-archive.tgz",
             }
             
     env:
       TORCH_INSTALL: 1
+      INSTALL_TORCH: 1
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -113,7 +119,7 @@ jobs:
       - run: |
           cd csrc
           mkdir build && cd build
-          cmake -DCUDA_TOOLKIT_ROOT_DIR="${env:CUDA_PATH}" ..
+          cmake ${{ matrix.cmakevars }} ..
           cmake --build . --target package --config Release
 
       - uses: svenstaro/upload-release-action@v2
