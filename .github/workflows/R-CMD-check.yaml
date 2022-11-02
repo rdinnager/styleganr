@@ -69,7 +69,7 @@ jobs:
       - name: Create environment
         run: cmake -E make_directory ${{runner.workspace}}/build
       - name: Free up 24GB of disk space
-        if: ${{ matrix.os == 'ubuntu-18.04' }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
         run: sudo rm -rf /usr/share/dotnet
       - name: Install CUDA
         if: ${{matrix.config.cuda != ''}}
