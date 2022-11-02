@@ -25,29 +25,23 @@ jobs:
         include:
           - os: macOS-latest 
             cuda: 0
-            cmakevars: 
           - os: windows-2019 
             cuda: 0
-            cmakevars: 
           - os: windows-2019 
-            cmakevars: '-DCUDA_TOOLKIT_ROOT_DIR="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.3"'
             cuda: "11.3",
             cuda_patch: "1",
-            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-windows-x64-v8.2.1.32.zip",
+            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-windows-x64-v8.2.1.32.zip"
           - os: ubuntu-20.04 
             cuda: 0
-            cmakevars: 
           - os: ubuntu-20.04
             cuda: "11.3"
             cuda_patch: "1",
-            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-linux-x64-v8.2.1.32.tgz",
-            cmakevars:
+            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-11.3-linux-x64-v8.2.1.32.tgz"
           - os: ubuntu-20.04
             cuda: "11.6"
             cuda_patch: "1",
-            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-linux-x86_64-8.6.0.163_cuda11-archive.tgz",
-            cmakevars:
-s
+            cudnn: "https://storage.googleapis.com/torch-lantern-builds/cudnn/cudnn-linux-x86_64-8.6.0.163_cuda11-archive.tgz"
+
     env:
       TORCH_INSTALL: 1
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
