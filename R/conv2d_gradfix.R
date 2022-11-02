@@ -88,7 +88,7 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
   Conv2d <- autograd_function(
 
     forward = function(ctx, input, weight, bias) {
-      print("conv2d forward..")
+      
       assertthat::are_equal(weight$shape, weight_shape)
       ctx$save_for_backward(
         if(weight$requires_grad) input else .null_tensor,
@@ -135,8 +135,6 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
 
     backward = function(ctx, grad_output) {
       
-      print("conv2d backward..")
-      
       input <- weight <- input_shape <- NULL
       c(input, weight, input_shape) %<-% ctx$saved_variables
 
@@ -169,7 +167,7 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
   Conv2dGradWeight <- autograd_function(
 
     forward = function(ctx, grad_output, input) {
-      print("conv2d_gradweight forward..")
+     
       ctx$save_for_backward(
         if(input$requires_grad) grad_output else .null_tensor,
         if(grad_output$requires_grad) input else .null_tensor,
@@ -217,8 +215,6 @@ conv_transpose2d_gradfix <- function(input, weight, bias = NULL, stride = 1, pad
     },
 
     backward = function(ctx, grad2_grad_weight) {
-      
-      print("conv2d_gradweight backward..")
       
       grad_output <- input <- grad_output_shape <- input_shape <- NULL
       c(grad_output, input, grad_output_shape, input_shape) %<-% ctx$saved_variables

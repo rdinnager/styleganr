@@ -35,6 +35,15 @@ sample_image <- function(G, z) {
 
 plot(sample_image(G, rnorm(512)))
 
+## test AD
+
+z <- torch_tensor(rnorm(512))$unsqueeze(1)$cuda()
+im <- G(z, NULL)
+
+imm <- im$mean()
+
+imm$backward()
+
 G <- Generator(128, 0, 16, 48, 3)$cuda()
 z <- torch_randn(1, 128)$cuda()
 c <- torch_zeros(1)$cuda()

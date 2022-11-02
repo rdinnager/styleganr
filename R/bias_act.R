@@ -161,7 +161,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
     },
     
     backward = function(ctx, dy) {
-      
+
       x <- ctx$saved_variables[[1]]
       b <- ctx$saved_variables[[2]]
       y <- ctx$saved_variables[[3]]
@@ -204,6 +204,7 @@ bias_act <- function(x, b = NULL, dim = 2, act = 'linear', alpha = NULL, gain = 
     },
     
     backward = function(ctx, d_dx) {
+
       d_dx <- d_dx$contiguous(memory_format = ctx$saved_variables[[5]])
       dy <- ctx$saved_variables[[1]] 
       x <- ctx$saved_variables[[2]] 

@@ -199,9 +199,9 @@ filtered_lrelu <- function(x, fu = NULL, fd = NULL, b = NULL, up = 1, down = 1, 
                 # if torch.cuda.current_stream(x.device) != torch.cuda.default_stream(x.device):
                 #     warnings.warn("filtered_lrelu called with non-default cuda stream but concurrent execution is not supported", RuntimeWarning)
                 y <- so <- return_code <- NULL
-                print(list(x = class(x), fu = fu, fd = fd, si = si, up = up, down = down, px0 = px0, px1 = px1, 
-                           py0 = py0, py1 = py1, sx = sx, sy = sy, gain = gain, slope = slope, clamp = clamp, 
-                           flip_filter = flip_filter, write_signs = write_signs))
+                # print(list(x = class(x), fu = fu, fd = fd, si = si, up = up, down = down, px0 = px0, px1 = px1, 
+                #            py0 = py0, py1 = py1, sx = sx, sy = sy, gain = gain, slope = slope, clamp = clamp, 
+                #            flip_filter = flip_filter, write_signs = write_signs))
                 c(y, so, return_code) %<-% cpp_filtered_lrelu(x, fu, fd, b, si, up, down, px0, px1, py0, py1, sx, sy, gain, slope, clamp, flip_filter, write_signs)
             } else {
                 return_code = -1
@@ -229,6 +229,7 @@ filtered_lrelu <- function(x, fu = NULL, fd = NULL, b = NULL, up = 1, down = 1, 
         },
 
         backward = function(ctx, dy) {
+          
             fu <- fd <- si <- xh <- xw <- yh <- yw <- x_shape <- y_shape <- s_ofs <- NULL
             c(fu, fd, si, x_shape, y_shape, s_ofs) %<-% ctx$saved_variables
             c(., ., xh, xw) %<-% x_shape

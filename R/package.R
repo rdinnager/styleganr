@@ -66,7 +66,7 @@ styleganr_is_installed <- function() {
 
 install_styleganr <- function(url = Sys.getenv("STYLEGANR_URL", unset = NA), cuda_version = Sys.getenv("CUDA")) {
   
-  assertthat::assert_that(cuda_version %in% c("", "10.2", "11.1"))
+  assertthat::assert_that(cuda_version %in% c("", "10.2", "11.1", "11.3"))
 
   if (!interactive() && Sys.getenv("TORCH_INSTALL", unset = 0) == "0") return()
 

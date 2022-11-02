@@ -236,6 +236,7 @@ upfirdn2d <- function(x, f, up = 1, down = 1, padding = 0, flip_filter = FALSE, 
         },
 
         backward = function(ctx, dy) {
+        
             f <- x_shape <- ih <- iw <- oh <- ow <- fw <- fh <- NULL
             c(f, x_shape) %<-% ctx$saved_variables
             c(., ., ih, iw) %<-% x_shape
