@@ -102,7 +102,7 @@ jobs:
           echo "CUDNN_INCLUDE_PATH=""${CUDA_PATH}\include""" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CUDNN_LIBRARY_PATH=""${CUDA_PATH}\lib\x64""" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r }}
           http-user-agent: ${{ matrix.http-user-agent }}
@@ -148,9 +148,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: r-lib/actions/setup-pandoc@v1
+      - uses: r-lib/actions/setup-pandoc@v2
 
-      - uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
@@ -170,7 +170,7 @@ jobs:
           Rscript -e "cat('ENV file:', Sys.getenv('GITHUB_ENV'))"
           Rscript -e "writeLines(paste0('STYLEGANR_URL=',normalizePath(list.files(pattern='zip', full.names=TRUE))), Sys.getenv('GITHUB_ENV'))"
 
-      - uses: r-lib/actions/check-r-package@v1
+      - uses: r-lib/actions/check-r-package@v2
         with:
           error-on: '"error"'
           args: 'c("--no-multiarch", "--no-manual")'
