@@ -93,6 +93,7 @@ jobs:
           ls $CUDA_PATH/lib64/ || true
           rm cudnn.tgz
           find $CUDA_PATH -maxdepth 2 -type d -ls
+          echo "CUDA=${{matrix.config.cuda}}" >> $GITHUB_ENV
       - name: Install cuDNN (Windows)
         if: ${{ matrix.config.cuda != '' && contains(matrix.config.os, 'windows') }}
         run: |
@@ -105,6 +106,7 @@ jobs:
           Move-Item -Path "C:\cudnn\cuda\lib\x64\cudnn*.lib" -Destination "${env:CUDA_PATH}\lib\x64"
           echo "CUDNN_INCLUDE_PATH=""${CUDA_PATH}\include""" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CUDNN_LIBRARY_PATH=""${CUDA_PATH}\lib\x64""" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CUDA=${{ matrix.config.cuda }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
       - uses: r-lib/actions/setup-r@v2
         with:
